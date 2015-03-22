@@ -27,11 +27,11 @@ class Grid(object):
       def displayGrid(self):
           cv2.imshow("grid window",self.grid)
           
-     
-grid =Grid(6,8,8,40)
-grid.displayGrid()
-key = cv2.waitKey()
-if key == 27:
-    cv2.destroyWindow("grid window")
+if __name__=="__main__":
+   grid =Grid(6,8,8,40)
+   grid.displayGrid()
+   key = cv2.waitKey()
+   if key == 27:
+     cv2.destroyWindow("grid window")
     
 
