@@ -2,11 +2,13 @@ import cv2
 import createGrid
 cam = cv2.VideoCapture(0)
 
+circledot=0
+rectdot=1
 
 cv2.namedWindow("Webcam_images", cv2.WINDOW_NORMAL)
 _,img = cam.read()
 
-grid=createGrid.Grid(6,6)
+grid=createGrid.Grid(row=5,col=5,dotRad=8,dotsGap=60,dottype=1,color=(16,46,255))
 
 def blendGrid(img1,img2,x=210,y=360):
     if img1==None:
@@ -35,7 +37,7 @@ def blendGrid(img1,img2,x=210,y=360):
 while 1:
   _,img = cam.read()
   img=cv2.flip(img, flipCode=1)
-  blendGrid(img,grid.grid)
+  blendGrid(img,grid.grid,110,300)
   cv2.imshow("Webcam_images",img)
   k=cv2.waitKey(1)
   if k==27:
