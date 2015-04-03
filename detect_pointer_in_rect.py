@@ -15,10 +15,15 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
         hsv_cropped = cv2.cvtColor(frame_cropped, cv2.COLOR_BGR2HSV)
 
 #       This could be the other possible range
-#       lower_blue = np.array([110,50,50])
-#       upper_blue = np.array([130,255,255])
-        lower_blue = np.array([110,50,150])
+        #correct range
+        lower_blue = np.array([110,50,50])
         upper_blue = np.array([130,255,255])
+
+#        lower_blue = np.array([110,50,150])
+#        upper_blue = np.array([130,255,255])
+
+ #       lower_blue = np.array([120,70,10])
+ #       upper_blue = np.array([255,250,50])
     
         #Threshold the HSV image to get only blue colors
         mask_cropped = cv2.inRange(hsv_cropped, lower_blue, upper_blue)
