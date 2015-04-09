@@ -1,18 +1,25 @@
+#!/usr/bin/env python
+
 import cv2
 import numpy as np
 
 def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
     cap = cv2.VideoCapture(0)
+    fgbg = cv2.BackgroundSubtractorMOG()
     while True:
-        
+
         # Take each frame
         _, frame = cap.read()
+        print frame.shape
 
         # Crop the frame according to the parameters specified
         frame_cropped = frame[left_top_x:left_top_x+height,left_top_y:left_top_y+width]
 
         # Convert BGR to HSV
         hsv_cropped = cv2.cvtColor(frame_cropped, cv2.COLOR_BGR2HSV)
+        fgmask = fgbg.apply(hsv_cropped)
+        print fgmask.shape
+        print hsv_cropped.shape
 
 #       This could be the other possible range
         #correct range
@@ -24,7 +31,7 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
 
  #       lower_blue = np.array([120,70,10])
  #       upper_blue = np.array([255,250,50])
-    
+
         #Threshold the HSV image to get only blue colors
         mask_cropped = cv2.inRange(hsv_cropped, lower_blue, upper_blue)
 
@@ -34,7 +41,7 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
         cv2.imshow('frame_cropped',frame_cropped)
         cv2.imshow('mask_cropped',mask_cropped)
         cv2.imshow('res_cropped',res_cropped)
-        
+
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
             cap.release()
