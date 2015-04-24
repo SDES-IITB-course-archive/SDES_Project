@@ -4,6 +4,10 @@ import timeit
 
 # Lines should be lists of dots strictly of size 2
 # Boxes should be quadruples of lines starting from roof and continuing clock-wise.
+# Have to take care of the fact that the line finalized is not already drawn. Done now.
+# Have to incorporate the handling of successive frames. Done now.
+# Player to draw the next line should be kept track of. Very IMP. Done now.
+# What about the co-ordinates of the dots? Convert to standard unitless Cartesian co-ordinates.
 
 def wait(delay):
     pass
@@ -39,10 +43,12 @@ class dot(object):
         return(self.get_x()==other.get_x() and self.get_y()==other.get_y())
 
 class game(object):
-    def __init__(self,grid_size,dot_size):
+    def __init__(self,grid_size,dot_size,no_of_players):
         self.new_grid=grid(left_top,grid_size,dot_size)
         self.grid_size=grid_size
-        self.owner_of_last_line=1
+        self.no_of_players=no_of_players
+        self.owner_of_next_line=0
+        self.owner_of_last_line=self.no_of_players-1
         self.list_of_lines_drawn=[]
         self.no_of_boxes_of_players=[0,0]
 
@@ -79,6 +85,7 @@ class game(object):
                 self.new_grid.draw_line(latest_line)
                 self.update_list_of_drawn_lines_with(latest_line)
                 box_formed,box=box_formed_by(latest_line)
+                self.set_owner_of_next_line(box_formed)
                 if(box_formed):
                     owner_of_the_box=self.get_owner_of_last_line()
                     fill_box(box,owner_of_the_box)
@@ -91,20 +98,31 @@ class game(object):
                             print "Thanks for playing!"
                         break
 
-# Have to take care of the fact that the line finalized is not already drawn. Done now.
-# Have to incorporate the handling of successive frames. Done now.
+    def set_owner_of_next_line(self,box_formed):
+        if not box_formed:
+            self.owner_of_next_line=self.player_next_to(self.owner_of_next_line)
+            self.owner_of_last_line=self.player_next_to(self.owner_of_last_line)
+        else:
+            self.owner_of_next_line=self.owner_of_next_line
+            self.owner_of_last_line=self.owner_of_next_line
+        
+    def player_next_to(self,player):
+        return (player+1)%self.no_of_players
 
-    def declare_winner():
-        if(no_of_boxes_of_players[0]>no_of_boxes_of_players[1]):
+    def get_owner_of_next_line(self):
+        return self.owner_of_next_line
+
+    def declare_winner(self):
+        if(self.no_of_boxes_of_players[0]>self.no_of_boxes_of_players[1]):
             print "Player 1 is the winner"
-        else if(no_of_boxes_of_players[0]>no_of_boxes_of_players[1]):
+        else if(self.no_of_boxes_of_players[0]>self.no_of_boxes_of_players[1]):
             print "Player 2 is the winner"
         else:
             print "This is a tie"
         pass
 
     def update_no_of_boxes_of_players(self,owner_of_the_box):
-        self.no_of_boxes_of_players[owner_of_the_box]+=no_of_boxes_of_players[owner_of_the_box]
+        self.no_of_boxes_of_players[owner_of_the_box]+=self.no_of_boxes_of_players[owner_of_the_box]
 
     def out_of_grid(self,dot_under_test):
         pass
@@ -134,7 +152,7 @@ class game(object):
         return self.owner_of_last_line
 
     def update_list_of_lines_drawn_with(self,latest_line): # Update the list with the lines expressed in the correct format,i.e.,top-to-bottom or left-to-right
-        if(is_horizontal(latest_line)):
+        if(self.is_horizontal(latest_line)):
             if(latest_line[0]~=self.dot_to_left_of(latest_line[1])):
                 latest_line=latest_line[::-1]
             self.list_of_lines_drawn.append(latest_line)
@@ -151,7 +169,7 @@ class game(object):
     def line_above(self,line):
         if(self.is_horizontal()):
             return [self.new_grid.dot_above(line[0]),self.new_grid.dot_above(line[1])]
-            
+
     def line_below(self,line):
         if(self.is_horizontal()):
             return [self.new_grid.dot_below(line[0]),self.new_grid.dot_above(line[1])]
@@ -162,7 +180,7 @@ class game(object):
 
     def line_to_the_left_of(self,line):
         if(not self.is_horizontal):
-            return [self.new_grid.dot_to_left_of(line[0]),self.new_grid.dot_to_left_of(line[1])]        
+            return [self.new_grid.dot_to_left_of(line[0]),self.new_grid.dot_to_left_of(line[1])]
 
     def pillar_lines(self,roof_line,floor_line):
         left_pillar=[roof_line[0],floor_line[0]]
@@ -206,14 +224,8 @@ class game(object):
             else:
                 return False,None
 
-#        for line in self.list_of_lines_drawn:
-#            if(latest_line[0]==line[0])
-
-    def fill_box(self,owner_of_the_box)
-        left_top_of_box_x=self
-        left_top_of_box_y=self
-        self.grid.fill_box(left_top_of_box_x,left_top_of_box_y)
-
+    def fill_box(self,box,owner_of_the_box)
+        pass
 class grid(object):
     def __init__(self,left_top,grid_size,dot_size):
         self.left_top_dot=dot(left_top)
@@ -228,10 +240,6 @@ class grid(object):
         pass
 
     def draw_grid_on(self,frame):
-        pass
-
-    def exists_line_between(self,dot1,dot2):
-        # Code to check whether a line already exists between 2 dots to avoid false alarms.
         pass
 
     def not_adjacent(self,dot1,dot2):
@@ -272,13 +280,13 @@ class grid(object):
             return(dot(current_dot.get_x(),current_dot.get_y()-self.dot_separation))
 
 def main():
-    while True;
-        frame=capture_frame()
-        new_grid=grid(left_top_x,left_top_y,height,width)
-        gridded_frame=new_grid.draw_on(frame)
-        if(pointer_detected(gridded_frame)):
-            if(pointer_within_grid(gridded_frame)):
-                if(gesture_made()):
+#    while True;
+#        frame=capture_frame()
+#        new_grid=grid(left_top_x,left_top_y,height,width)
+#        gridded_frame=new_grid.draw_on(frame)
+#        if(pointer_detected(gridded_frame)):
+#            if(pointer_within_grid(gridded_frame)):
+#                if(gesture_made()):
 
 
 

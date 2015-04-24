@@ -10,7 +10,6 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
 
         # Take each frame
         _, frame = cap.read()
-        print frame.shape
 
         # Crop the frame according to the parameters specified
         frame_cropped = frame[left_top_x:left_top_x+height,left_top_y:left_top_y+width]
@@ -33,7 +32,15 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
  #       upper_blue = np.array([255,250,50])
 
         #Threshold the HSV image to get only blue colors
-        mask_cropped = cv2.inRange(hsv_cropped, lower_blue, upper_blue)
+#        mask_cropped = cv2.inRange(hsv_cropped, lower_blue, upper_blue)
+        try:
+            mask_cropped = cv2.inRange(hsv_cropped, lower_blue, upper_blue)
+        except cv2.error as e:
+            cap.release()
+            cv2.destroyAllWindows()
+            print e.message
+            return e
+            break
 
         # Bitwise-AND mask and original image
         res_cropped = cv2.bitwise_and(frame_cropped,frame_cropped, mask= mask_cropped)
