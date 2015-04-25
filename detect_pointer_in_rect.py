@@ -16,8 +16,7 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
 
         # Convert BGR to HSV
         hsv_cropped = cv2.cvtColor(frame_cropped, cv2.COLOR_BGR2HSV)
-        fgmask = fgbg.apply(hsv_cropped)
-        print fgmask.shape
+#        print fgmask.shape
         print hsv_cropped.shape
 
 #       This could be the other possible range
@@ -45,9 +44,13 @@ def detect_pointer_in_rect(left_top_x,left_top_y,width,height):
         # Bitwise-AND mask and original image
         res_cropped = cv2.bitwise_and(frame_cropped,frame_cropped, mask= mask_cropped)
 
+        print fgbg.getMat(hsv_cropped)
+        fgmask = fgbg.apply("abcd")
+
         cv2.imshow('frame_cropped',frame_cropped)
         cv2.imshow('mask_cropped',mask_cropped)
         cv2.imshow('res_cropped',res_cropped)
+        cv2.imshow('fgmask',fgmask)
 
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
