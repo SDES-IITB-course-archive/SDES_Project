@@ -16,6 +16,9 @@ class Grid(object):
           self.grid=np.zeros((self.width,self.height,3),np.uint8)
           self.dotPosList=[]
           self.filldots()
+          self.player1boxcolor=(255,128,12)
+          self.player2boxcolor=(0,128,12)
+          
           
           
       def filldots(self):
@@ -91,12 +94,26 @@ class Grid(object):
            
            
        #draws line between dot1 and dot2    
-      def drawLine(self,dot1,dot2,color=(255,255,255)):
-           print self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]]
-           cv2.line(self.grid, self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]], color, thickness=int(1.5*self.dotRadius))
+      def drawLine(self,dot1,dot2,linecolor=0):
+           if linecolor==0:
+              linecolor=(255,155,0)
+           else:
+              linecolor=(0,126,248)
+           cv2.line(self.grid, self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]], linecolor, thickness=int(1.5*self.dotRadius))
        
-      def drawLastSelectedLine(self):
-           self.drawLine(self.lastSelectedLine)
+      def drawLastSelectedLine(self,linecolor=0):
+           self.drawLine(self.lastSelectedLine,linecolor)
+           
+      def drawBox(self,dotCoord,boxcolor=0):
+          if boxcolor==0:
+              boxcolor=self.player1boxcolor
+          else:
+              boxcolor=self.player2boxcolor
+          startingDot=self.dotPosList[dotCoord[0]][dotCoord[1]]
+          endingDot=self.dotPosList[dotCoord[0]+1][dotCoord[1]+1]
+          startPoint=(startingDot[0]+self.dotRadius+1,startingDot[1]+self.dotRadius+1)
+          endingPoint=(endingDot[0]-self.dotRadius-1,endingDot[1]-self.dotRadius-1)
+          cv2.rectangle(self.grid,startPoint,endingPoint, boxcolor, -1)
            
 if __name__=="__main__":
    grid =Grid(6,6,8,40,dottype=1)
