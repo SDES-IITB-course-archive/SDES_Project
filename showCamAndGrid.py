@@ -9,6 +9,7 @@ cv2.namedWindow("Webcam_images", cv2.WINDOW_NORMAL)
 _,img = cam.read()
 
 grid=createGrid.Grid(row=5,col=5,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250))
+grid.drawLine((1,1),(2,1))   
 
 def blendGrid(img1,img2,x=210,y=360):
     if img1==None:

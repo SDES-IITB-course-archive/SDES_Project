@@ -93,16 +93,16 @@ class Grid(object):
        #draws line between dot1 and dot2    
       def drawLine(self,dot1,dot2,color=(255,255,255)):
            print self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]]
-           cv2.line(self.grid, self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]], color, thickness=40)
+           cv2.line(self.grid, self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]], color, thickness=int(1.5*self.dotRadius))
        
       def drawLastSelectedLine(self):
            self.drawLine(self.lastSelectedLine)
            
 if __name__=="__main__":
-   grid =Grid(6,6,8,40)
-   grid.displayGrid()
+   grid =Grid(6,6,8,40,dottype=1)
    print grid.dotPosList[0][0]
-   grid.drawLine((0,0),(0,1))   
+   grid.drawLine((1,1),(2,1))   
+   grid.displayGrid()
    key = cv2.waitKey()
    if key == 27:
      cv2.destroyWindow("grid window")
