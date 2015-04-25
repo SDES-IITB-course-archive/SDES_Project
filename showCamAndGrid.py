@@ -33,7 +33,9 @@ def blendGrid(img1,img2,x=210,y=360):
     img2_fg = cv2.bitwise_and(img2,img2,mask = mask)
 
     # Put logo in ROI and modify the main image
-    dst = cv2.add(img1_bg,img2_fg)
+    #dst = cv2.add(img1_bg,img2_fg)
+    #dst = cv2.addWeighted(img1_bg,0.2,img2_fg,0.8,0)
+    dst = cv2.addWeighted(roi,0.2,img2_fg,0.8,0)
     img1[x:x+rows, y:y+cols ] = dst
 
 
@@ -44,7 +46,7 @@ while 1:
   img=cv2.flip(img, flipCode=1)
   blendGrid(img,grid.grid,110,300)
   cv2.imshow("Webcam_images",img)
-  k=cv2.waitKey(1)
+  k=cv2.waitKey(1) & 0xFF
   if k==27:
    cv2.destroyWindow("Webcam_images")
    cam.release()

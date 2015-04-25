@@ -146,7 +146,7 @@ if __name__=="__main__":
    grid.drawBox((2,1),boxcolor=0)
    grid.drawBox((1,4),boxcolor=1)   
    grid.displayGrid()
-   key = cv2.waitKey()
+   key = cv2.waitKey() & 0xFF
    if key == 27:
      cv2.destroyWindow("grid window")
     
