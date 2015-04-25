@@ -24,6 +24,12 @@ class Grid(object):
             print "The grid is too big to fit in the frame"
         self.dot_separation=10   #Fixed for the time being
 
+    def denormalize(self,dot):
+        pass
+
+    def normalize(self,dot):
+        pass
+
     def _grid_does_not_fit_in_frame(self):
         pass
 

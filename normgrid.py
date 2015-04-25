@@ -5,7 +5,8 @@ from dot import *
 class NormGrid(object):
     def __init__(self,grid_size):
         self.grid_size=grid_size
-        self.grid=
+        self.height=grid_size[0]
+        self.width=grid_size[1]
 
     def not_adjacent(self,dot1,dot2):
         if(self.dot_above(dot1) != dot2 and self.dot_below(dot1) != dot2 and self.dot_to_left_of(dot1) != dot2 and
