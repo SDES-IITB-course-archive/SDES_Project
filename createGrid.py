@@ -16,10 +16,11 @@ class Grid(object):
           self.grid=np.zeros((self.width,self.height,3),np.uint8)
           self.dotPosList=[]
           self.filldots()
+          self.linecolor=(0,210,11)
+          self.currenLineColor=(112,21,221)
           self.player1boxcolor=(255,128,12)
           self.player2boxcolor=(0,128,12)
-          
-          
+          self.lastDrawnLinePos=None                    
           
       def filldots(self):
           y=self.dotRadius
@@ -79,7 +80,7 @@ class Grid(object):
            else:
              return False
              
-      def lineSelected(self,x,y):
+      def findSelectedLine(self,x,y):
            if self.isOutsideArea(x,y):
               return None
            line=self.detectHorizontalLine(x,y)
@@ -93,32 +94,57 @@ class Grid(object):
            return None
            
            
-       #draws line between dot1 and dot2    
-      def drawLine(self,dot1,dot2,linecolor=0):
-           if linecolor==0:
-              linecolor=(255,155,0)
-           else:
-              linecolor=(0,126,248)
-           cv2.line(self.grid, self.dotPosList[dot1[0]][dot1[1]], self.dotPosList[dot2[0]][dot2[1]], linecolor, thickness=int(1.5*self.dotRadius))
-       
+      def drawHorizontalLine(self,line,color):   
+          startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
+          endingDotPos=self.dotPosList[line[1][0]][line[1][1]]
+          lineStartPoint=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1])
+          lineEndPoint=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1])
+          cv2.line(self.grid, lineStartPoint, lineEndPoint, color, thickness=2*self.dotRadius)
+          self.lastDrawnLinePos=(lineStartPoint,lineEndPoint)
+
+      def drawVerticalLine(self,line,color):   
+          startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
+          endingDotPos=self.dotPosList[line[1][0]][line[1][1]]
+          lineStartPoint=(startingDotPos[0],startingDotPos[1]+self.dotRadius+1)
+          lineEndPoint=(endingDotPos[0],endingDotPos[1]-self.dotRadius-1)
+          cv2.line(self.grid, lineStartPoint, lineEndPoint, color, thickness=2*self.dotRadius)
+          self.lastDrawnLinePos=(lineStartPoint,lineEndPoint)
+           
+       #draws a line    
+      def drawLine(self,line):
+          if self.lastDrawnLinePos!=None:
+             cv2.line(self.grid, self.lastDrawnLinePos[0], self.lastDrawnLinePos[1], self.linecolor, thickness=2*self.dotRadius)
+          if line[0][0]==line[1][0]:
+             self.drawHorizontalLine(line,self.currenLineColor)
+          else:
+             self.drawVerticalLine(line,self.currenLineColor)
+          
+         
       def drawLastSelectedLine(self,linecolor=0):
-           self.drawLine(self.lastSelectedLine,linecolor)
+           self.drawLine(self.lastSelectedLine)
+           
            
       def drawBox(self,dotCoord,boxcolor=0):
           if boxcolor==0:
               boxcolor=self.player1boxcolor
           else:
               boxcolor=self.player2boxcolor
-          startingDot=self.dotPosList[dotCoord[0]][dotCoord[1]]
-          endingDot=self.dotPosList[dotCoord[0]+1][dotCoord[1]+1]
-          startPoint=(startingDot[0]+self.dotRadius+1,startingDot[1]+self.dotRadius+1)
-          endingPoint=(endingDot[0]-self.dotRadius-1,endingDot[1]-self.dotRadius-1)
-          cv2.rectangle(self.grid,startPoint,endingPoint, boxcolor, -1)
+          startingDotPos=self.dotPosList[dotCoord[0]][dotCoord[1]]
+          endingDotPos=self.dotPosList[dotCoord[0]+1][dotCoord[1]+1]
+          boxStartPoint=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1]+self.dotRadius+1)
+          boxEndPoint=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1]-self.dotRadius-1)
+          cv2.rectangle(self.grid,boxStartPoint,boxEndPoint, boxcolor, -1)
            
 if __name__=="__main__":
+   cv2.namedWindow("grid window", cv2.WINDOW_NORMAL)
    grid =Grid(6,6,8,40,dottype=1)
    print grid.dotPosList[0][0]
-   grid.drawLine((1,1),(2,1))   
+   grid.drawLine(((1,1),(2,1)))
+   grid.drawLine(((2,1),(2,2)))
+   grid.drawLine(((4,1),(4,2)))
+   
+   grid.drawBox((2,1),boxcolor=0)
+   grid.drawBox((1,4),boxcolor=1)   
    grid.displayGrid()
    key = cv2.waitKey()
    if key == 27:
