@@ -97,23 +97,23 @@ class Grid(object):
       def drawHorizontalLine(self,line,color):   
           startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
           endingDotPos=self.dotPosList[line[1][0]][line[1][1]]
-          lineStartPoint=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1])
-          lineEndPoint=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1])
-          cv2.line(self.grid, lineStartPoint, lineEndPoint, color, thickness=2*self.dotRadius)
-          self.lastDrawnLinePos=(lineStartPoint,lineEndPoint)
+          lineTopLeftPos=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1]-self.dotRadius)
+          lineBottomRightPos=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1]+self.dotRadius)
+          cv2.rectangle(self.grid, lineTopLeftPos, lineBottomRightPos, color, -1)
+          self.lastDrawnLinePos=(lineTopLeftPos,lineBottomRightPos)
 
       def drawVerticalLine(self,line,color):   
           startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
           endingDotPos=self.dotPosList[line[1][0]][line[1][1]]
-          lineStartPoint=(startingDotPos[0],startingDotPos[1]+self.dotRadius+1)
-          lineEndPoint=(endingDotPos[0],endingDotPos[1]-self.dotRadius-1)
-          cv2.line(self.grid, lineStartPoint, lineEndPoint, color, thickness=2*self.dotRadius)
-          self.lastDrawnLinePos=(lineStartPoint,lineEndPoint)
+          lineTopLeftPos=(startingDotPos[0]-self.dotRadius,startingDotPos[1]+self.dotRadius+1)
+          lineBottomRightPos=(endingDotPos[0]+self.dotRadius,endingDotPos[1]-self.dotRadius-1)
+          cv2.rectangle(self.grid, lineTopLeftPos, lineBottomRightPos, color, -1)
+          self.lastDrawnLinePos=(lineTopLeftPos,lineBottomRightPos)
            
        #draws a line    
       def drawLine(self,line):
           if self.lastDrawnLinePos!=None:
-             cv2.line(self.grid, self.lastDrawnLinePos[0], self.lastDrawnLinePos[1], self.linecolor, thickness=2*self.dotRadius)
+             cv2.rectangle(self.grid, self.lastDrawnLinePos[0], self.lastDrawnLinePos[1], self.linecolor, -1)
           if line[0][0]==line[1][0]:
              self.drawHorizontalLine(line,self.currenLineColor)
           else:
