@@ -20,8 +20,7 @@ def blendGrid(img1,img2,x=210,y=360):
        return
     rows,cols,channels = img2.shape
     roi = img1[x:x+rows, y:y+cols ]
-
-    # Now create a mask of logo and create its inverse mask also
+    
     img2gray = cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
     ret, mask = cv2.threshold(img2gray, 10, 255, cv2.THRESH_BINARY)
     mask_inv = cv2.bitwise_not(mask)
@@ -33,9 +32,10 @@ def blendGrid(img1,img2,x=210,y=360):
     img2_fg = cv2.bitwise_and(img2,img2,mask = mask)
 
     # Put logo in ROI and modify the main image
-    #dst = cv2.add(img1_bg,img2_fg)
     #dst = cv2.addWeighted(img1_bg,0.2,img2_fg,0.8,0)
-    dst = cv2.addWeighted(roi,0.2,img2_fg,0.8,0)
+    img2_fg= cv2.add(img1_bg,img2_fg)
+    alpha=0.8
+    dst = cv2.addWeighted(roi,1-alpha,img2_fg,alpha,1)
     img1[x:x+rows, y:y+cols ] = dst
 
 
@@ -50,9 +50,7 @@ while 1:
   if k==27:
    cv2.destroyWindow("Webcam_images")
    cam.release()
+   break
 
  
-   
-
-
-   
+  

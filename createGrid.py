@@ -40,7 +40,8 @@ class Grid(object):
      
       def displayGrid(self):
           cv2.imshow("grid window",self.grid)
-          
+      
+      #called internally   
       def detectHorizontalLine(self,x,y):
              i=0
              noPossibleLine=True
@@ -57,6 +58,7 @@ class Grid(object):
                   return (i,j)
              return None
       
+      #called internally
       def detectVerticalLine(self,x,y):
              j=0
              noPossibleLine=True
@@ -73,6 +75,7 @@ class Grid(object):
                   return (i,j)
              return None
       
+      #called internally
       def isOutsideArea(self,x,y):
            if y<=self.dotPosList[0][0][1]-self.dotRadius or y>=self.dotPosList[self.row-1][0][1]+self.dotRadius \
            or x<=self.dotPosList[0][0][0]-self.dotRadius or x>=self.dotPosList[0][self.col-1][0]+self.dotRadius:
@@ -80,6 +83,7 @@ class Grid(object):
            else:
              return False
              
+      #this is called to detect if line is selected      
       def findSelectedLine(self,x,y):
            if self.isOutsideArea(x,y):
               return None
@@ -93,37 +97,40 @@ class Grid(object):
               return self.lastSelectedLine
            return None
            
-           
+      #called internally     
       def drawHorizontalLine(self,line,color):   
           startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
           endingDotPos=self.dotPosList[line[1][0]][line[1][1]]
           lineTopLeftPos=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1]-self.dotRadius)
           lineBottomRightPos=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1]+self.dotRadius)
           cv2.rectangle(self.grid, lineTopLeftPos, lineBottomRightPos, color, -1)
-          self.lastDrawnLinePos=(lineTopLeftPos,lineBottomRightPos)
+          return (lineTopLeftPos,lineBottomRightPos)
 
+      #called internally
       def drawVerticalLine(self,line,color):   
           startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
           endingDotPos=self.dotPosList[line[1][0]][line[1][1]]
           lineTopLeftPos=(startingDotPos[0]-self.dotRadius,startingDotPos[1]+self.dotRadius+1)
           lineBottomRightPos=(endingDotPos[0]+self.dotRadius,endingDotPos[1]-self.dotRadius-1)
           cv2.rectangle(self.grid, lineTopLeftPos, lineBottomRightPos, color, -1)
-          self.lastDrawnLinePos=(lineTopLeftPos,lineBottomRightPos)
+          return (lineTopLeftPos,lineBottomRightPos)
+
            
-       #draws a line    
+      #draws a line, this function is called internally    
       def drawLine(self,line):
           if self.lastDrawnLinePos!=None:
              cv2.rectangle(self.grid, self.lastDrawnLinePos[0], self.lastDrawnLinePos[1], self.linecolor, -1)
           if line[0][0]==line[1][0]:
-             self.drawHorizontalLine(line,self.currenLineColor)
+             self.lastDrawnLinePos=self.drawHorizontalLine(line,self.currenLineColor)
           else:
-             self.drawVerticalLine(line,self.currenLineColor)
+             self.lastDrawnLinePos=self.drawVerticalLine(line,self.currenLineColor)
           
-         
-      def drawLastSelectedLine(self,linecolor=0):
+          
+      #this will be called for drawing the last selected line         
+      def drawLastSelectedLine(self):
            self.drawLine(self.lastSelectedLine)
            
-           
+      #this is called to draw a box     
       def drawBox(self,dotCoord,boxcolor=0):
           if boxcolor==0:
               boxcolor=self.player1boxcolor
@@ -134,20 +141,63 @@ class Grid(object):
           boxStartPoint=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1]+self.dotRadius+1)
           boxEndPoint=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1]-self.dotRadius-1)
           cv2.rectangle(self.grid,boxStartPoint,boxEndPoint, boxcolor, -1)
-           
+          
+      
+      #called internally, not fully implemented
+      def blinkHorizontalLine(self,line,color,i):
+         self.drawHorizontalLine(line,color=(110,220,40))
+         startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
+         lineTopLeftPos=(startingDotPos[0]+self.dotRadius,startingDotPos[1]-self.dotRadius)
+         lineBottomRightPos=(lineTopLeftPos[0]+int(round(self.dotsGap*(i/2000.0)))-2*self.dotRadius,lineTopLeftPos[1]+2*self.dotRadius)
+         print lineTopLeftPos, lineBottomRightPos
+         #cv2.rectangle(self.grid, (16,0), lineBottomRightPos, self.currenLineColor, -1)
+     
+      #called internally, not fully implemented
+      def blinkLastSelectedLine(self,i):
+         line=self.lastSelectedLine
+         if line[0][0]==line[1][0]:
+             self.blinkHorizontalLine(line,self.currenLineColor,i)
+         else:
+             self.blinkVerticalLine(line,self.currenLineColor,i)
+      
+      #not fully implemented      
+      def blinkTester(self):
+         oldline=[(0,0),(0,1)]
+         i=0
+         while True:
+            line=self.findSelectedLine(20,10)
+            if line==None:
+               i=0
+               continue
+            if line!=oldline:
+            # or line==alreadySElectedLIne()
+               removeBlinkLastLine()
+               i=0
+               oldline=line
+               continue
+            if i<2000:
+               i+=1
+            self.blinkLastSelectedLine(i)
+            self.displayGrid()
+            key = cv2.waitKey(1) & 0xFF
+            if key == 27:
+               cv2.destroyWindow("grid window")
+               break
+            
+         
 if __name__=="__main__":
    cv2.namedWindow("grid window", cv2.WINDOW_NORMAL)
-   grid =Grid(6,6,8,40,dottype=1)
-   print grid.dotPosList[0][0]
+   grid =Grid(4,4,8,80,dottype=1)
    grid.drawLine(((1,1),(2,1)))
    grid.drawLine(((2,1),(2,2)))
-   grid.drawLine(((4,1),(4,2)))
-   
+   grid.drawLine(((3,1),(3,2)))
+   #grid.blinkTester()   
    grid.drawBox((2,1),boxcolor=0)
-   grid.drawBox((1,4),boxcolor=1)   
+   grid.drawBox((1,2),boxcolor=1)   
    grid.displayGrid()
    key = cv2.waitKey() & 0xFF
    if key == 27:
      cv2.destroyWindow("grid window")
+     
     
 
