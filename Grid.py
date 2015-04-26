@@ -187,7 +187,8 @@ class Grid(object):
          
 if __name__=="__main__":
    cv2.namedWindow("grid window", cv2.WINDOW_NORMAL)
-   grid =Grid(4,4,8,80,dottype=1)
+   grid =Grid(4,4,8,80
+   ,dottype=1)
    grid.drawLine(((1,1),(2,1)))
    grid.drawLine(((2,1),(2,2)))
    grid.drawLine(((3,1),(3,2)))
