@@ -3,7 +3,7 @@
 import timeit
 
 from dot import *
-from errorhandling import *
+from video import *
 
 # Lines should be lists of dots strictly of size 2
 # Boxes should be quadruples of lines starting from roof and continuing clock-wise.
@@ -30,6 +30,12 @@ class Grid(object):
     def normalize(self,dot):
         pass
 
+    def fill_box(left_top_of_box,owner_of_the_box)
+        pass
+        
+    def out_of_grid(dot_under_test):
+        pass
+
     def _grid_does_not_fit_in_frame(self):
         pass
 
@@ -44,30 +50,31 @@ class Grid(object):
             return False
 
     def draw_line(self,line): # line -> list of dots
-        if(self.not_adjacent(line[0],line[1])):
+        denorm_line=[denormalize(dot) for dot in line]
+        if(self.not_adjacent(denorm_line[0],denorm_line[1])):
             print "Dots not adjacent"
         else:
             pass
 
-    def dot_to_right_of(self,current_dot):
+    def _dot_to_right_of(self,current_dot):
         if(self.is_rightmost(current_dot)):
             return None
         else:
             return(dot(current_dot.get_x()+self.dot_separation,current_dot.get_y()))
 
-    def dot_to_left_of(self,current_dot):
+    def _dot_to_left_of(self,current_dot):
         if(self.is_leftmost(current_dot)):
             return None
         else:
             return(dot(current_dot.get_x()-self.dot_separation,current_dot.get_y()))
 
-    def dot_above(self,current_dot):
+    def _dot_above(self,current_dot):
         if(self.is_topmost(current_dot)):
             return None
         else:
             return(dot(current_dot.get_x(),current_dot.get_y()+self.dot_separation))
 
-    def dot_below(self,current_dot):
+    def _dot_below(self,current_dot):
         if(self.is_bottommost(current_dot)):
             return None
         else:

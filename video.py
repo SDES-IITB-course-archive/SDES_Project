@@ -1,20 +1,25 @@
 #!/usr/bin/env python
 
 import cv2
-from errorhandling import *
+import sys
 
 class Video(object):
     def __init__(self):
         self.init=0
 
-    def catch_error(function,module,error):
+    def normal_exit(self):
         if(self.init==1):
-            stop_video_capture(cap)
-        error_occurred_in(function,module)
-        print cv2_error.message
-        exit()
+            self.stop_video_capture()
+        sys.exit()
 
-    def error_occurred_in(function,module):
+    def catch_error(self,function,module,error):
+        if(self.init==1):
+            self.stop_video_capture()
+        self.error_occurred_in(function,module)
+        print error.message
+        sys.exit()
+
+    def error_occurred_in(self,function,module):
         print "The following error occurred in function",function,"from module",module
 
     def start_video_capture(self):
