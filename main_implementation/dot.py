@@ -18,4 +18,11 @@ class Dot(object):
         return self.y
 
     def __eq__(self,other):
-        return(self.get_x()==other.get_x() and self.get_y()==other.get_y())
+        if(other!=None):
+            return(self.get_x()==other.get_x() and self.get_y()==other.get_y())
+    
+    def __ne__(self,other):
+        return(not(self==other))
+        
+    def __repr__(self):
+        return str(self.get_x())+str(self.get_y())

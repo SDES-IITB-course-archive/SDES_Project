@@ -4,34 +4,55 @@ import cv2
 import numpy as np
 from video import *
 import sys
+from dot import *
 
 class Pointer(object):
     def __init__(self):
         self.calibrated=0
-        self.pointer_window=[0,0,0,0,0,0]
+        self.pointer_window=[25,45,119,177,3,230]
 
 
-    def received_input(self,latest_frame,new_grid):
+    def received_input(self,webcam_video,new_grid):
         if self.calibrated:
-            frame,position_of_pointer=self.detect_pointer(latest_frame)
+            latest_frame=webcam_video.get_next_frame()
+            frame_with_pointer_detected,position_of_pointer=self.detect_pointer(latest_frame)
+            frame_with_pointer_detected=new_grid.blendGrid(frame_with_pointer_detected,0,0)
             if position_of_pointer==None:
-                return None
-            if(new_grid.out_of_grid(position_of_pointer)):
-                return None
+                return None,frame_with_pointer_detected
+            if(new_grid.isOutsideArea(position_of_pointer[0],position_of_pointer[1])):
+                return None,frame_with_pointer_detected
             else:
-                initial_line=self.get_line_selected_by_pointer(new_grid,position_of_pointer)
+                initial_line=new_grid.findSelectedLine(position_of_pointer[0],position_of_pointer[1])
+                if initial_line==None:
+                    return None,frame_with_pointer_detected
                 counter=0
-                while(counter<max_count):
-                    wait(delay)
-                    frame,position_of_pointer=self.detect_pointer(latest_frame)
-                    if(new_grid.out_of_grid(position_of_pointer)):
-                        return None
+                total_delay=2000
+                for i in xrange(0,total_delay/2):
+                    latest_frame=webcam_video.get_next_frame()
+                    cv2.waitKey(2)
+                    frame_with_pointer_detected,position_of_pointer=self.detect_pointer(latest_frame)
+                    frame_with_pointer_detected=new_grid.blendGrid(frame_with_pointer_detected,0,0)
+                    if position_of_pointer==None:
+                        cv2.imshow("Game_window",frame_with_pointer_detected)
+                        continue
+#                        return None,frame_with_pointer_detected
+                    if(new_grid.isOutsideArea(position_of_pointer[0],position_of_pointer[1])):
+                        cv2.imshow("Game_window",frame_with_pointer_detected)
+                        continue
+#                        return None,frame_with_pointer_detected
                     else:
-                        final_line=self.get_line_selected_by_pointer()
+                        final_line=new_grid.findSelectedLine(position_of_pointer[0],position_of_pointer[1])
+                        if final_line==None:
+                            cv2.imshow("Game_window",frame_with_pointer_detected)
+                            continue
+#                            return None,frame_with_pointer_detected
                         if(initial_line[0]!=final_line[0] and initial_line[1]!=final_line[1]):
-                            return None,frame
-                return initial_line,frame
-        else:
+                            cv2.imshow("Game_window",frame_with_pointer_detected)
+                            continue
+#                            return None,frame_with_pointer_detected
+                        return [Dot(initial_line[0]),Dot(initial_line[1])],frame_with_pointer_detected
+                return None,frame_with_pointer_detected
+        else:   
             print "please, calibrate the pointer first."
             sys.exit()
 
@@ -43,9 +64,12 @@ class Pointer(object):
             sys.exit()
         stamp=self.detect_and_stamp_the_pointer_in(frame)
         if stamp==None:
-            return
+            return frame,None
         thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
-        return frame,[centroid_x,centroid_y]
+        [nrows,ncols,_]=frame_with_pointer_detected.shape
+#        print frame_with_pointer_detected.shape
+#        print [ncols-centroid_x,centroid_y]
+        return frame_with_pointer_detected,[ncols-centroid_x,centroid_y]
 
     def _open_image(self,thresholded):
         thresholded=cv2.erode(thresholded,cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5)))
@@ -98,12 +122,13 @@ class Pointer(object):
             except TypeError as te:
                 print "caught typeerror"
 
-            cv2.setTrackbarPos('LowH','Control',0)
-            cv2.setTrackbarPos('HighH','Control',179)
-            cv2.setTrackbarPos('LowS','Control',0)
-            cv2.setTrackbarPos('HighS','Control',255)
-            cv2.setTrackbarPos('LowV','Control',0)
-            cv2.setTrackbarPos('HighV','Control',255)
+            [lower_hue,upper_hue,lower_sat,upper_sat,lower_value,upper_value]=self.pointer_window
+            cv2.setTrackbarPos('LowH','Control',lower_hue)
+            cv2.setTrackbarPos('HighH','Control',upper_hue)
+            cv2.setTrackbarPos('LowS','Control',lower_sat)
+            cv2.setTrackbarPos('HighS','Control',upper_sat)
+            cv2.setTrackbarPos('LowV','Control',lower_value)
+            cv2.setTrackbarPos('HighV','Control',upper_value)
 
             while True:
                 frame=webcam_video.get_next_frame()
@@ -126,25 +151,24 @@ class Pointer(object):
 
                 if user_wants_to_stop():
                     cv2.destroyWindow("Detected_pointer")
+                    cv2.waitKey(4)
                     cv2.destroyWindow("Control")
+                    cv2.waitKey(4)
                     cv2.destroyWindow("Calibration")
+                    cv2.waitKey(4)
                     if __name__=="__main__":
                         webcam_video.normal_exit()
                     self.calibrated=1
+                    print "done"
+                    return
         except cv2.error as cv2_error:
             webcam_video.catch_error("calibrate_pointer","gui",cv2_error)
 
-    def get_line_selected_by_pointer(self,new_grid,position_of_pointer):
-        
-        pass
-
 def user_wants_to_stop():
-    while True:
-        k=cv2.waitKey(5) & 0xFF
-        if(k==27):
-            return True
-        break
-
+#    while True:
+    k=cv2.waitKey(5) & 0xFF
+    return k==27
+    
 if __name__=="__main__":
     webcam_video=Video()
     webcam_video.start_video_capture()

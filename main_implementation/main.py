@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
+import numpy as np
+
 from game import *
-from grid import *
+import grid
 from video import *
 from gui import *
 
 def main():
-    grid_size_in_dots=[10,10]
-    grid_size_in_pixels=[200,200]
+    row=4
+    col=4
     no_of_players=2
-    left_top=[100,100]
-    dot_size=3
-    
-    mygame=Game(grid_size,no_of_players)
-    new_grid=Grid(left_top,grid_size_in_dots,grid_size_in_pixels,dot_size)
+    mygame=Game([row,col],no_of_players)
+    new_grid=grid.Grid(row=5,col=5,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250))
     webcam_video=Video()
     mypointer=Pointer()
     try:
@@ -27,24 +26,39 @@ def main():
     while True:
         try:
             latest_frame=webcam_video.get_next_frame()
+            k=cv2.waitKey(10)
+            cv2.namedWindow("Game_window",cv2.WINDOW_NORMAL)
+            m=cv2.waitKey(5)
+            
+#            new_grid.drawLine(((1,1),(2,1)))
+#            new_grid.drawLine(((2,1),(2,2)))
+#            new_grid.drawLine(((4,1),(4,2)))      
+#            new_grid.drawBox((2,1),boxcolor=0)
+#            new_grid.drawBox((1,3),boxcolor=1)
+
+            grid_image=new_grid.draw_grid(latest_frame)
+            another_frame=new_grid.blendGrid(latest_frame,0,0)
+            cv2.imshow("Game_window",another_frame)
         except cv2.error as cv2_error:
             webcam_video.catch_error("main","main","cv2_error")
-        new_grid.draw_grid_on(latest_frame)
-        
+
         try:
-            my_input,frame_with_pointer_located=mypointer.received_input(latest_frame,new_grid)
-            cv2.imshow("Game_window",frame_with_pointer_located)
+            my_input,frame_with_pointer_located=mypointer.received_input(webcam_video,new_grid)
         except cv2.error as cv2_error:
             webcam_video.catch_error("received_input","gui",cv2_error)
         if(my_input==None):
+            print "got stuck here"
             continue
-        
+
         else:
+            print "I am not abhimanyu"
+            cv2.imshow("Game_window",frame_with_pointer_located)
             latest_line=my_input
             if(latest_line in mygame.list_of_lines_drawn):
                 print "This line is already drawn. Choose another."
                 continue
-            new_grid.draw_line(latest_line)
+            new_grid.drawLine(latest_line)
+            print latest_line[0],latest_line[1]
             mygame.update_list_of_drawn_lines_with(latest_line)
             box_formed,box=mygame.box_formed_by(latest_line)
             mygame.set_owner_of_next_line(box_formed)
