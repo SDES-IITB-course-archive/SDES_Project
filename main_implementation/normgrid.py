@@ -46,9 +46,12 @@ class NormGrid(object):
             return(Dot([current_dot.get_x()-1,current_dot.get_y()]))
 
     def dot_below(self,current_dot):
+        print "step 4"
         if(self.is_bottommost(current_dot)):
+            print "step 5"
             return None
         else:
+            print "step 6"
             return(Dot([current_dot.get_x()+1,current_dot.get_y()]))
             
     def is_horizontal(self,line):
@@ -62,8 +65,10 @@ class NormGrid(object):
             return [self.dot_above(line[0]),self.dot_above(line[1])]
 
     def line_below(self,line):
+        print "step 2 "
         if(self.is_horizontal(line)):
-            return [self.dot_below(line[0]),self.dot_above(line[1])]
+            print "step 3 "
+            return [self.dot_below(line[0]),self.dot_below(line[1])]
 
     def line_to_the_right_of(self,line):
         if(not self.is_horizontal(line)):

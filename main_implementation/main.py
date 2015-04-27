@@ -11,7 +11,7 @@ def main():
     row=4
     col=4
     no_of_players=2
-    mygame=Game([row,col],no_of_players)
+    mygame=Game([row+1,col+1],no_of_players)
     new_grid=grid.Grid(row=5,col=5,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250))
     webcam_video=Video()
     mypointer=Pointer()
@@ -59,12 +59,15 @@ def main():
             print latest_line[0],latest_line[1]
             mygame.update_list_of_drawn_lines_with(latest_line)
             print "List of lines drawn is ",mygame.list_of_lines_drawn
-            box_formed,box=mygame.box_formed_by(latest_line)
+            box_formed,boxes=mygame.box_formed_by(latest_line)
             mygame.set_owner_of_next_line(box_formed)
             if(box_formed):
                 owner_of_the_box=mygame.get_owner_of_last_line()
-                new_grid.fill_box(box,owner_of_the_box)
-                mygame.update_no_of_boxes_of_players(owner_of_the_box)
+                if(boxes[0]!=None):
+                    new_grid.drawBox([boxes[0][0][0].get_x(),boxes[0][0][0].get_y()],owner_of_the_box)
+                if(boxes[1]!=None):
+                    new_grid.drawBox([boxes[1][0][0].get_x(),boxes[1][0][0].get_y()],owner_of_the_box)
+                mygame.update_no_of_boxes_of_players(owner_of_the_box,boxes)
                 if(mygame.game_ended()):
                     print "The entire grid is filled"
                     mygame.declare_winner()

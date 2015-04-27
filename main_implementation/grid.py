@@ -209,8 +209,8 @@ class Grid(object):
 #    def normalize(self,dot):
 #        pass
 
-    def fill_box(left_top_of_box,owner_of_the_box):
-        pass
+#    def fill_box(left_top_of_box,owner_of_the_box):
+#        pass
 
 #    def out_of_grid(dot_under_test):
 #        pass
