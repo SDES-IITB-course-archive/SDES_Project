@@ -106,18 +106,15 @@ class Grid(object):
 
     #this is called to detect if line is selected
     def findSelectedLine(self,x,y):
-        print "in findSelectedLine with x and y as ",x,y
         if self.isOutsideArea(x,y):
             return None
-        line=self.detectHorizontalLine(x,y)
-        if line!=None:
-            self.lastSelectedLine=[line,(line[0],line[1]+1)]
-            print "the horizontal line is ",self.lastSelectedLine[0],self.lastSelectedLine[1]
+        lineStartingdot=self.detectHorizontalLine(x,y)
+        if lineStartingdot!=None:
+            self.lastSelectedLine=[lineStartingdot,(lineStartingdot[0],lineStartingdot[1]+1)]
             return list(self.lastSelectedLine)
-        line=self.detectVerticalLine(x,y)
-        if line!=None:
-            self.lastSelectedLine=[line,(line[0]+1,line[1])]
-            print "the vertical line is ",self.lastSelectedLine[0],self.lastSelectedLine[1]
+        lineStartingdot=self.detectVerticalLine(x,y)
+        if lineStartingdot!=None:
+            self.lastSelectedLine=[lineStartingdot,(lineStartingdot[0]+1,lineStartingdot[1])]
             return list(self.lastSelectedLine)
         return None
 

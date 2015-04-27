@@ -25,4 +25,4 @@ class Dot(object):
         return(not(self==other))
         
     def __repr__(self):
-        return str(self.get_x())+str(self.get_y())
+        return '['+str(self.get_x())+','+str(self.get_y())+'] '

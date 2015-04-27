@@ -47,11 +47,9 @@ def main():
         except cv2.error as cv2_error:
             webcam_video.catch_error("received_input","gui",cv2_error)
         if(my_input==None):
-            print "got stuck here"
             continue
 
         else:
-            print "I am not abhimanyu"
             cv2.imshow("Game_window",frame_with_pointer_located)
             latest_line=my_input
             if(latest_line in mygame.list_of_lines_drawn):
@@ -60,6 +58,7 @@ def main():
             new_grid.drawLine(latest_line)
             print latest_line[0],latest_line[1]
             mygame.update_list_of_drawn_lines_with(latest_line)
+            print "List of lines drawn is ",mygame.list_of_lines_drawn
             box_formed,box=mygame.box_formed_by(latest_line)
             mygame.set_owner_of_next_line(box_formed)
             if(box_formed):

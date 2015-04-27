@@ -54,7 +54,7 @@ class NormGrid(object):
     def is_horizontal(self,line):
         left_dot=self.dot_to_left_of(line[1])
         right_dot=self.dot_to_right_of(line[1])
-        if(left_dot!=None and right_dot!=None):
+        if(left_dot!=None or right_dot!=None):
             return ((line[0]==left_dot) or (line[0]==right_dot))
 
     def line_above(self,line):
