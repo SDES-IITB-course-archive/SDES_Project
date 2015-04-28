@@ -29,9 +29,6 @@ class Video(object):
         except cv2.error as cv2_error:
             self.catch_error("start_video_capture","video",cv2_error)
 
-    def wait(self,delay):
-        pass
-
     def stop_video_capture(self):
         self.video_handle.release()
         cv2.destroyAllWindows()

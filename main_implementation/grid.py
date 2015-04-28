@@ -18,10 +18,6 @@ from video import *
 
 class Grid(object):
     def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0)):
-#        if(self._grid_does_not_fit_in_frame()):
-#            print "The grid is too big to fit in the frame"
-# ----------------------------------------------------------------------
-        print "hello"
         self.row=row
         self.col=col
         self.dotRadius=dotRadius
@@ -48,10 +44,8 @@ class Grid(object):
             while x<self.height:
                 if self.dottype==0:
                     cv2.circle(self.grid,(x,y), self.dotRadius, self.color, -1)
-                    print "The center of the dot is at ",[x,y]
                 else:
                     cv2.rectangle(self.grid,(x-self.dotRadius,y-self.dotRadius),(x+self.dotRadius,y+self.dotRadius), self.color, -1)
-                    print "The center of the dot is at ",[x,y]
                 self.dotPosList[i].append((x,y))
                 x+=self.dotsGap
             y+=self.dotsGap
@@ -60,7 +54,6 @@ class Grid(object):
     def displayGrid(self):
         cv2.imshow("grid window",self.grid)
 
-    #called internally
     def detectHorizontalLine(self,x,y):
         i=0
         noPossibleLine=True
@@ -78,7 +71,6 @@ class Grid(object):
             j+=1
         return None
 
-    #called internally
     def detectVerticalLine(self,x,y):
         j=0
         noPossibleLine=True
@@ -96,7 +88,6 @@ class Grid(object):
            i+=1
         return None
 
-    #called internally
     def isOutsideArea(self,x,y):
         if y<=self.dotPosList[0][0][1]-self.dotRadius or y>=self.dotPosList[self.row-1][0][1]+self.dotRadius \
                 or x<=self.dotPosList[0][0][0]-self.dotRadius or x>=self.dotPosList[0][self.col-1][0]+self.dotRadius:
@@ -104,7 +95,6 @@ class Grid(object):
         else:
             return False
 
-    #this is called to detect if line is selected
     def findSelectedLine(self,x,y):
         if self.isOutsideArea(x,y):
             return None
@@ -118,7 +108,6 @@ class Grid(object):
             return list(self.lastSelectedLine)
         return None
 
-    #called internally
     def drawHorizontalLine(self,line,color):
         startingDotPos=self.dotPosList[line[0].get_x()][line[0].get_y()]
         endingDotPos=self.dotPosList[line[1].get_x()][line[1].get_y()]
@@ -127,7 +116,6 @@ class Grid(object):
         cv2.rectangle(self.grid, lineTopLeftPos, lineBottomRightPos, color, -1)
         return (lineTopLeftPos,lineBottomRightPos)
 
-    #called internally
     def drawVerticalLine(self,line,color):
         startingDotPos=self.dotPosList[line[0].get_x()][line[0].get_y()]
         endingDotPos=self.dotPosList[line[1].get_x()][line[1].get_y()]
@@ -136,8 +124,6 @@ class Grid(object):
         cv2.rectangle(self.grid, lineTopLeftPos, lineBottomRightPos, color, -1)
         return (lineTopLeftPos,lineBottomRightPos)
 
-
-    #draws a line, this function is called internally
     def drawLine(self,line):
         if self.lastDrawnLinePos!=None:
             cv2.rectangle(self.grid, self.lastDrawnLinePos[0], self.lastDrawnLinePos[1], self.linecolor, -1)
@@ -146,12 +132,9 @@ class Grid(object):
         else:
             self.lastDrawnLinePos=self.drawVerticalLine(line,self.currenLineColor)
 
-
-    #this will be called for drawing the last selected line
     def drawLastSelectedLine(self):
         self.drawLine(self.lastSelectedLine)
 
-    #this is called to draw a box
     def drawBox(self,dotCoord,boxcolor=0):
         if boxcolor==0:
             boxcolor=self.player1boxcolor
@@ -162,57 +145,11 @@ class Grid(object):
         boxStartPoint=(startingDotPos[0]+self.dotRadius+1,startingDotPos[1]+self.dotRadius+1)
         boxEndPoint=(endingDotPos[0]-self.dotRadius-1,endingDotPos[1]-self.dotRadius-1)
         cv2.rectangle(self.grid,boxStartPoint,boxEndPoint, boxcolor, -1)
-
-    #called internally, not fully implemented
-    def blinkHorizontalLine(self,line,color,i):
-        self.drawHorizontalLine(line,color=(110,220,40))
-        startingDotPos=self.dotPosList[line[0][0]][line[0][1]]
-        lineTopLeftPos=(startingDotPos[0]+self.dotRadius,startingDotPos[1]-self.dotRadius)
-        lineBottomRightPos=(lineTopLeftPos[0]+int(round(self.dotsGap*(i/2000.0)))-2*self.dotRadius,lineTopLeftPos[1]+2*self.dotRadius)
-        print lineTopLeftPos, lineBottomRightPos
-        #cv2.rectangle(self.grid, (16,0), lineBottomRightPos, self.currenLineColor, -1)
-
-    #called internally, not fully implemented
-    def blinkLastSelectedLine(self,i):
-        line=self.lastSelectedLine
-        if line[0][0]==line[1][0]:
-            self.blinkHorizontalLine(line,self.currenLineColor,i)
-        else:
-            self.blinkVerticalLine(line,self.currenLineColor,i)
-
-    #not fully implemented
-    def blinkTester(self):
-        oldline=[(0,0),(0,1)]
-        i=0
-        while True:
-            line=self.findSelectedLine(20,10)
-            if line==None:
-                i=0
-                continue
-            if line!=oldline:   # or line==alreadySElectedLIne()
-                removeBlinkLastLine()
-                i=0
-                oldline=line
-                continue
-            if i<2000:
-                i+=1
-            self.blinkLastSelectedLine(i)
-            self.displayGrid()
-            key = cv2.waitKey(1) & 0xFF
-            if key == 27:
-                cv2.destroyWindow("grid window")
-                break
     
 #    def denormalize(self,dot):
 #        pass
 
 #    def normalize(self,dot):
-#        pass
-
-#    def fill_box(left_top_of_box,owner_of_the_box):
-#        pass
-
-#    def out_of_grid(dot_under_test):
 #        pass
 
 #    def _grid_does_not_fit_in_frame(self):
@@ -241,14 +178,8 @@ class Grid(object):
         img2_fg = cv2.bitwise_and(img2,img2,mask = mask)
 
         # Put logo in ROI and modify the main image
-        #dst = cv2.addWeighted(img1_bg,0.2,img2_fg,0.8,0)
         img2_fg= cv2.add(img1_bg,img2_fg)
         alpha=0.8
         dst = cv2.addWeighted(roi,1-alpha,img2_fg,alpha,1)
         img1[x:x+rows, y:y+cols ] = dst
-
-#        cv2.imshow("xyzw",img1)
-#        cv2.waitKey(10)
-#        cv2.imshow("abcd",dst)
-#        cv2.waitKey(10)
         return img1

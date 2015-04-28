@@ -9,7 +9,7 @@ class NormGrid(object):
         self.width=grid_size[1]
 
     def not_adjacent(self,dot1,dot2):
-        if(self.dot_above(dot1) != dot2 and self.dot_below(dot1) != dot2 and self.dot_to_left_of(dot1) != dot2 and 
+        if(self.dot_above(dot1) != dot2 and self.dot_below(dot1) != dot2 and self.dot_to_left_of(dot1) != dot2 and
                 self.dot_to_right_of(dot1) != dot2):
             return True
         else:
@@ -17,10 +17,10 @@ class NormGrid(object):
 
     def is_bottommost(self,dot):
         return(dot.get_x()+1>=self.height)
-        
+
     def is_topmost(self,dot):
         return(dot.get_x()-1<0)
-        
+
     def is_leftmost(self,dot):
         return(dot.get_y()-1<0)
 
@@ -46,14 +46,11 @@ class NormGrid(object):
             return(Dot([current_dot.get_x()-1,current_dot.get_y()]))
 
     def dot_below(self,current_dot):
-        print "step 4"
         if(self.is_bottommost(current_dot)):
-            print "step 5"
             return None
         else:
-            print "step 6"
             return(Dot([current_dot.get_x()+1,current_dot.get_y()]))
-            
+
     def is_horizontal(self,line):
         left_dot=self.dot_to_left_of(line[1])
         right_dot=self.dot_to_right_of(line[1])
@@ -65,9 +62,7 @@ class NormGrid(object):
             return [self.dot_above(line[0]),self.dot_above(line[1])]
 
     def line_below(self,line):
-        print "step 2 "
         if(self.is_horizontal(line)):
-            print "step 3 "
             return [self.dot_below(line[0]),self.dot_below(line[1])]
 
     def line_to_the_right_of(self,line):

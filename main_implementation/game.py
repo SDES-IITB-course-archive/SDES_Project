@@ -42,7 +42,7 @@ class Game(object):
     def declare_winner(self):
         if(self.no_of_boxes_of_players[0]>self.no_of_boxes_of_players[1]):
             print "Player 1 is the winner"
-        elif(self.no_of_boxes_of_players[0]>self.no_of_boxes_of_players[1]):
+        elif(self.no_of_boxes_of_players[0]<self.no_of_boxes_of_players[1]):
             print "Player 2 is the winner"
         else:
             print "This is a tie"
@@ -55,8 +55,8 @@ class Game(object):
         if(boxes[1]!=None):
             no_of_boxes+=1
         self.no_of_boxes_of_players[owner_of_the_box]+=no_of_boxes
-        print "Player 1 has ",self.no_of_boxes_of_players[0],"boxes and "
-        print "Player 2 has ",self.no_of_boxes_of_players[1],"boxes"
+        print "Player 1 has ",self.no_of_boxes_of_players[0]," boxes"
+        print "Player 2 has ",self.no_of_boxes_of_players[1]," boxes"
 
     def get_owner_of_last_line(self):
         return self.owner_of_last_line
@@ -78,48 +78,26 @@ class Game(object):
         box1=None
         box2=None
         if(self.new_grid.is_horizontal(latest_line)):
-            print "step 1 "
             if(self.new_grid.line_above(latest_line) in self.list_of_lines_drawn):
                 left_pillar,right_pillar=self.new_grid.pillar_lines(self.new_grid.line_above(latest_line),latest_line)
                 if((left_pillar in self.list_of_lines_drawn) and (right_pillar in self.list_of_lines_drawn)):
                     box_formed=True
                     box1=[self.new_grid.line_above(latest_line),right_pillar,latest_line,left_pillar]
-#                    return True,[self.new_grid.line_above(latest_line),right_pillar,latest_line,left_pillar]
-                else:
-                    box1=None
-#                    return False,None
             if(self.new_grid.line_below(latest_line) in self.list_of_lines_drawn):
-                print "step 2"
                 left_pillar,right_pillar=self.new_grid.pillar_lines(latest_line,self.new_grid.line_below(latest_line))
                 if((left_pillar in self.list_of_lines_drawn) and (right_pillar in self.list_of_lines_drawn)):
                     box_formed=True
                     box2=[latest_line,right_pillar,self.new_grid.line_below(latest_line),left_pillar]
-#                    return True,[latest_line,right_pillar,self.new_grid.line_below(latest_line),left_pillar]
-                else:
-                    box2=None
-#                    return False,None
             return box_formed,[box1,box2]
-#            else:
-#                return False,None
         else:
             if(self.new_grid.line_to_the_left_of(latest_line) in self.list_of_lines_drawn):
                 roof,floor=self.new_grid.roof_and_floor(self.new_grid.line_to_the_left_of(latest_line),latest_line)
                 if((roof in self.list_of_lines_drawn) and (floor in self.list_of_lines_drawn)):
                     box_formed=True
                     box1=[roof,latest_line,floor,self.new_grid.line_to_the_left_of(latest_line)]
-#                    return True,[roof,latest_line,floor,self.new_grid.line_to_the_left_of(latest_line)]
-                else:
-                    box1=None                    
-#                    return False,None
             if(self.new_grid.line_to_the_right_of(latest_line) in self.list_of_lines_drawn):
                 roof,floor=self.new_grid.roof_and_floor(latest_line,self.new_grid.line_to_the_right_of(latest_line))
                 if((roof in self.list_of_lines_drawn) and (floor in self.list_of_lines_drawn)):
                     box_formed=True
                     box2=[roof,self.new_grid.line_to_the_right_of(latest_line),floor,latest_line]
-#                    return True,[roof,self.new_grid.line_to_the_right_of(latest_line),floor,latest_line]
-                else:
-                    box2=None
-#                    return False,None
             return box_formed,[box1,box2]
-#            else:
-#                return False,None

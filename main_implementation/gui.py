@@ -9,8 +9,7 @@ from dot import *
 class Pointer(object):
     def __init__(self):
         self.calibrated=0
-        self.pointer_window=[111,125,201,255,11,69]
-
+        self.pointer_window=[106,122,165,248,55,105]
 
     def received_input(self,webcam_video,new_grid):
         if self.calibrated:
@@ -25,7 +24,6 @@ class Pointer(object):
                 initial_line=new_grid.findSelectedLine(position_of_pointer[0],position_of_pointer[1])
                 if initial_line==None:
                     return None,frame_with_pointer_detected
-                print "initial_line is ",initial_line[0],initial_line[1]
                 counter=0
                 total_delay=20
                 for i in xrange(0,total_delay/2):
@@ -36,29 +34,23 @@ class Pointer(object):
                     if position_of_pointer==None:
                         cv2.imshow("Game_window",frame_with_pointer_detected)
                         continue
-#                        return None,frame_with_pointer_detected
                     if(new_grid.isOutsideArea(position_of_pointer[0],position_of_pointer[1])):
                         cv2.imshow("Game_window",frame_with_pointer_detected)
                         continue
-#                        return None,frame_with_pointer_detected
                     else:
                         final_line=new_grid.findSelectedLine(position_of_pointer[0],position_of_pointer[1])
                         if final_line==None:
                             cv2.imshow("Game_window",frame_with_pointer_detected)
                             continue
-#                            return None,frame_with_pointer_detected
-                        print "final_line is ",final_line[0],final_line[1]
                         if(initial_line[0]!=final_line[0] and initial_line[1]!=final_line[1]):
                             cv2.imshow("Game_window",frame_with_pointer_detected)
                             continue
-#                            return None,frame_with_pointer_detected
                         if counter==7:
                             return [Dot(initial_line[0]),Dot(initial_line[1])],frame_with_pointer_detected
                         else:
                             counter+=1
-                            print counter
                 return None,frame_with_pointer_detected
-        else:   
+        else:
             print "please, calibrate the pointer first."
             sys.exit()
 
@@ -69,12 +61,10 @@ class Pointer(object):
             print "please, calibrate the pointer first."
             sys.exit()
         stamp=self.detect_and_stamp_the_pointer_in(frame)
-        if stamp==None:
+        if stamp[2]==None:
             return frame,None
         thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
         [nrows,ncols,_]=frame_with_pointer_detected.shape
-#        print frame_with_pointer_detected.shape
-#        print [ncols-centroid_x,centroid_y]
         return frame_with_pointer_detected,[ncols-centroid_x,centroid_y]
 
     def _open_image(self,thresholded):
@@ -99,7 +89,7 @@ class Pointer(object):
     def detect_and_stamp_the_pointer_in(self,frame):
         hsv=cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
         thresholded=self._mask(hsv)
-        
+
         mom=cv2.moments(thresholded)
         try:
             centroid_x=int(mom['m10']/mom['m00'])
@@ -108,27 +98,23 @@ class Pointer(object):
             cv2.circle(thresholded,(centroid_x,centroid_y),3,(0,0,0),-1)
             return thresholded,frame,[centroid_x,centroid_y]
         except ZeroDivisionError as z:
-            pass
-            
-        
+            return thresholded,frame,None
+
     def calibrate_pointer(self,webcam_video):
         def nothing(trackbar_position):
             pass
         try:
-
             cv2.namedWindow('Control')
 
-            try:
-                cv2.createTrackbar('LowH','Control',0,179,nothing)
-                cv2.createTrackbar('HighH','Control',0,179,nothing)
-                cv2.createTrackbar('LowS','Control',0,255,nothing)
-                cv2.createTrackbar('HighS','Control',0,255,nothing)
-                cv2.createTrackbar('LowV','Control',0,255,nothing)
-                cv2.createTrackbar('HighV','Control',0,255,nothing)
-            except TypeError as te:
-                print "caught typeerror"
+            cv2.createTrackbar('LowH','Control',0,179,nothing)
+            cv2.createTrackbar('HighH','Control',0,179,nothing)
+            cv2.createTrackbar('LowS','Control',0,255,nothing)
+            cv2.createTrackbar('HighS','Control',0,255,nothing)
+            cv2.createTrackbar('LowV','Control',0,255,nothing)
+            cv2.createTrackbar('HighV','Control',0,255,nothing)
 
             [lower_hue,upper_hue,lower_sat,upper_sat,lower_value,upper_value]=self.pointer_window
+
             cv2.setTrackbarPos('LowH','Control',lower_hue)
             cv2.setTrackbarPos('HighH','Control',upper_hue)
             cv2.setTrackbarPos('LowS','Control',lower_sat)
@@ -137,7 +123,7 @@ class Pointer(object):
             cv2.setTrackbarPos('HighV','Control',upper_value)
 
             while True:
-                frame=webcam_video.get_next_frame()                
+                frame=webcam_video.get_next_frame()
 
                 lower_hue = cv2.getTrackbarPos('LowH','Control')
                 lower_sat = cv2.getTrackbarPos('LowS','Control')
@@ -149,15 +135,15 @@ class Pointer(object):
                 self.pointer_window=[lower_hue,upper_hue,lower_sat,upper_sat,lower_value,upper_value]
 
                 stamp=self.detect_and_stamp_the_pointer_in(frame)
-                if stamp==None:
-                    cv2.imshow("Calibration",frame)
+                
+                if(stamp[2]==None):
+                    cv2.imshow("Detected_pointer",stamp[1])
                     cv2.waitKey(1)
-                    cv2.imshow("Detected_pointer",frame)
+                    cv2.imshow("Calibration",stamp[0])
                     cv2.waitKey(1)
                     continue
-                thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
 
-                print "here I am"
+                thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
 
                 cv2.imshow("Calibration",thresholded)
                 cv2.waitKey(1)
@@ -174,16 +160,14 @@ class Pointer(object):
                     if __name__=="__main__":
                         webcam_video.normal_exit()
                     self.calibrated=1
-                    print "done"
                     return
         except cv2.error as cv2_error:
             webcam_video.catch_error("calibrate_pointer","gui",cv2_error)
 
 def user_wants_to_stop():
-#    while True:
     k=cv2.waitKey(5) & 0xFF
     return k==27
-    
+
 if __name__=="__main__":
     webcam_video=Video()
     webcam_video.start_video_capture()

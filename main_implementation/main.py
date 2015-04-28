@@ -8,11 +8,11 @@ from video import *
 from gui import *
 
 def main():
-    row=4
-    col=4
+    rows=5
+    cols=5
     no_of_players=2
-    mygame=Game([row+1,col+1],no_of_players)
-    new_grid=grid.Grid(row=5,col=5,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250))
+    mygame=Game([rows,cols],no_of_players)
+    new_grid=grid.Grid(row=rows,col=cols,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250))
     webcam_video=Video()
     mypointer=Pointer()
     try:
@@ -29,13 +29,6 @@ def main():
             k=cv2.waitKey(10)
             cv2.namedWindow("Game_window",cv2.WINDOW_NORMAL)
             m=cv2.waitKey(5)
-            
-#            new_grid.drawLine(((1,1),(2,1)))
-#            new_grid.drawLine(((2,1),(2,2)))
-#            new_grid.drawLine(((4,1),(4,2)))      
-#            new_grid.drawBox((2,1),boxcolor=0)
-#            new_grid.drawBox((1,3),boxcolor=1)
-
             grid_image=new_grid.draw_grid(latest_frame)
             another_frame=new_grid.blendGrid(latest_frame,0,0)
             cv2.imshow("Game_window",another_frame)
@@ -47,6 +40,7 @@ def main():
         except cv2.error as cv2_error:
             webcam_video.catch_error("received_input","gui",cv2_error)
         if(my_input==None):
+            cv2.imshow("Game_window",frame_with_pointer_located)
             continue
 
         else:
@@ -56,9 +50,7 @@ def main():
                 print "This line is already drawn. Choose another."
                 continue
             new_grid.drawLine(latest_line)
-            print latest_line[0],latest_line[1]
             mygame.update_list_of_drawn_lines_with(latest_line)
-            print "List of lines drawn is ",mygame.list_of_lines_drawn
             box_formed,boxes=mygame.box_formed_by(latest_line)
             mygame.set_owner_of_next_line(box_formed)
             if(box_formed):
