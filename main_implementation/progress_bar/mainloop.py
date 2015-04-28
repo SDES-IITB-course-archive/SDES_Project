@@ -180,61 +180,64 @@ pointer=initiate_pointer()
 webcam_video,pointer=initial_set_up(webcam_video,pointer)
 cv2.namedWindow("Game_Window",cv2.WINDOW_NORMAL)
 
-game_in_progress=True
-player=0
-while True:
-      total_waiting_time=1.0
-      frame=webcam_video.get_next_frame()
-      _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
-      if pointer_location==None:
-         updateGUI(frame,grid,grid_position,pointer_location=None)
-         continue
-      pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
-      selected_line=grid.findSelectedLine(pointer_location_inside_grid)
-      
-      if selected_line==None:
-         updateGUI(frame,grid,grid_position,pointer_location)
-         continue
-      k=line_already_selected(selected_line)
-      print k
-      if k==True: 
-         updateGUI(frame,grid,grid_position,pointer_location)
-         continue
-      start_time=get_system_time()
-      current_time=get_system_time()
-      delay=current_time-start_time
-      pointer_miss=0
-      progress_bar_drawn=False
-      while delay<=total_waiting_time:
-            frame=webcam_video.get_next_frame()
-            _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
-            if pointer_location==None:
-               total_waiting_time=total_waiting_time*1.1
-               pointer_miss+=1
-               if pointer_miss>max_allowed_pointer_miss:
-                  break;
-               updateGUI(frame,grid,grid_position,pointer_location=None)
-               continue
-            pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
-            new_selected_line=grid.findSelectedLine(pointer_location_inside_grid)
-            if new_selected_line==selected_line:
-               grid.drawProgressBarOverLastSelectedLine(delay/total_waiting_time)
-               progress_bar_drawn=True
-               delay=get_system_time()-start_time
-               updateGUI(frame,grid,grid_position,pointer_location)
-               continue
-            else:
-               updateGUI(frame,grid,grid_position,pointer_location) 
-               break
-      if delay>total_waiting_time:
-         grid.drawLastSelectedLine()
-         progress_bar_drawn=False
-         game_in_progress=game_logic(selected_line)
-         updateGUI(frame,grid,grid_position,pointer_location)
-      if progress_bar_drawn==True:
-         grid.removeProgressBar()
-      if game_in_progress==False and user_wants_to_stop():
-         webcam_video.stop_video_capture()
-         break
+def main():
+	game_in_progress=True
+	player=0
+	while True:
+	      total_waiting_time=1.0
+	      frame=webcam_video.get_next_frame()
+	      _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
+	      if pointer_location==None:
+		 updateGUI(frame,grid,grid_position,pointer_location=None)
+		 continue
+	      pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
+	      selected_line=grid.findSelectedLine(pointer_location_inside_grid)
+	      
+	      if selected_line==None:
+		 updateGUI(frame,grid,grid_position,pointer_location)
+		 continue
+	      k=line_already_selected(selected_line)
+	      print k
+	      if k==True: 
+		 updateGUI(frame,grid,grid_position,pointer_location)
+		 continue
+	      start_time=get_system_time()
+	      current_time=get_system_time()
+	      delay=current_time-start_time
+	      pointer_miss=0
+	      progress_bar_drawn=False
+	      while delay<=total_waiting_time:
+		    frame=webcam_video.get_next_frame()
+		    _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
+		    if pointer_location==None:
+		       total_waiting_time=total_waiting_time*1.1
+		       pointer_miss+=1
+		       if pointer_miss>max_allowed_pointer_miss:
+		          break;
+		       updateGUI(frame,grid,grid_position,pointer_location=None)
+		       continue
+		    pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
+		    new_selected_line=grid.findSelectedLine(pointer_location_inside_grid)
+		    if new_selected_line==selected_line:
+		       grid.drawProgressBarOverLastSelectedLine(delay/total_waiting_time)
+		       progress_bar_drawn=True
+		       delay=get_system_time()-start_time
+		       updateGUI(frame,grid,grid_position,pointer_location)
+		       continue
+		    else:
+		       updateGUI(frame,grid,grid_position,pointer_location) 
+		       break
+	      if delay>total_waiting_time:
+		 grid.drawLastSelectedLine()
+		 progress_bar_drawn=False
+		 game_in_progress=game_logic(selected_line)
+		 updateGUI(frame,grid,grid_position,pointer_location)
+	      if progress_bar_drawn==True:
+		 grid.removeProgressBar()
+	      if game_in_progress==False and user_wants_to_stop():
+		 webcam_video.stop_video_capture()
+		 break
 
+if __name__=="__main__":
+   main()
 
