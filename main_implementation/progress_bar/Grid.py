@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
-
-
+import sys
 
 class Grid(object):
       def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0)):   #dotsGap includes dotRadius
@@ -21,12 +20,16 @@ class Grid(object):
           self.player2boxcolor=(0,128,12)
           self.lastDrawnLinePos=None 
           self.lastSelectedLine=[(0,0),(0,1)] 
-          self.progress_bar_drawn_over_line=None                  
+          self.progress_bar_drawn_over_line=None 
+          self.fatigue=self.assignFatigue()                 
           self.filldots()
           
-          
+       
       #called internally    
       def filldots(self):
+          if self.dotsGap<2*self.dotRadius:
+             print "Gap between dots should be greater than 2 dot radius "
+             sys.exit(1)
           y=self.dotRadius
           i=0
           while y<self.width:
@@ -53,11 +56,17 @@ class Grid(object):
           cv2.imshow("grid window",self.grid)
       
       
+      
+      def assignFatigue(fatigue):
+          if fatigue==None:
+             gap_between_dots=self.dotsGap-2*self.dotRadius
+             if gap_between_dots
+             
       #called internally   
       def detectHorizontalLine(self,x,y):
              linePossibility=False
              for i in xrange (self.row):
-               if y>self.dotPosList[i][0][1]-self.dotRadius and y<self.dotPosList[i][0][1]+self.dotRadius:
+               if y>self.dotPosList[i][0][1]-self.dotRadius-self.fatigue and y<self.dotPosList[i][0][1]+self.dotRadius+self.fatigue:
                   linePossibility=True
                   break;
              if linePossibility==True:              
@@ -70,7 +79,7 @@ class Grid(object):
       def detectVerticalLine(self,x,y):
              linePossibility=False
              for j in xrange(self.col):
-               if x>self.dotPosList[0][j][0]-self.dotRadius and x<self.dotPosList[0][j][0]+self.dotRadius:
+               if x>self.dotPosList[0][j][0]-self.dotRadius-self.fatigue and x<self.dotPosList[0][j][0]+self.dotRadius+self.fatigue:
                   linePossibility=True
                   break;
              if linePossibility==True:
@@ -139,7 +148,6 @@ class Grid(object):
           
       #this will be called for drawing the last selected line         
       def drawLastSelectedLine(self):
-           print self.lastSelectedLine
            self.drawLine(self.lastSelectedLine)
            
       #this is called to draw a box     
