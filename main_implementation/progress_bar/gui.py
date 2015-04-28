@@ -9,7 +9,7 @@ from dot import *
 class Pointer(object):
     def __init__(self):
         self.calibrated=0
-        self.pointer_window=[106,122,165,248,55,105]
+        self.pointer_window=[92,128,96,236,0,288]
 
     def received_input(self,webcam_video,new_grid):
         if self.calibrated:
@@ -155,7 +155,6 @@ class Pointer(object):
                     continue
 
                 thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
-
                 cv2.imshow("Calibration",thresholded)
                 cv2.waitKey(1)
                 cv2.imshow("Detected_pointer",frame_with_pointer_detected)

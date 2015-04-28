@@ -1,24 +1,49 @@
 import time
-import grid
-
+import sys
 import numpy as np
 
+import Grid
 from game import *
 from video import *
 from gui import *
 
 row,col=6,6
+dotRadius,dotsGap,dottype,color=8,40,1,(46,266,250)
 max_allowed_pointer_miss=3
 number_of_players=2
-grid_position=(10,12)
+grid_position=(100,100)
+
+
+
+def get_text():
+    player1boxes=str(game_object.no_of_boxes_of_players[0])
+    player2boxes=str(game_object.no_of_boxes_of_players[1])
+    
+    text= "Player 1: "+player1boxes+"      Player 2: "+ player2boxes
+    if game_object.game_ended():
+       winner=game_object.declare_winner()
+       if winner!=None:
+          text+="   Player "+winner+" won the game."
+       else:
+          text+="   It's a tie."
+    else:
+       owner_of_next_line=str(game_object.get_owner_of_next_line()+1)
+       text=text+"    Next Player: "+owner_of_next_line
+    return text 
+
 
 def updateGUI(camframe,grid,grid_position,pointer_location):
+    print "pointer_location: ",
+    print pointer_location
+    camframe=cv2.flip(camframe,flipCode=1)
     camframe=blendGrid(camframe,grid.grid,grid_position)
-    if pointer_location!=None:
-       drawPointer(camframe,pointer_location)
-    cv2.waitKey(5)
+    width,height,_=camframe.shape
+    cv2.putText(camframe,get_text(), (10,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, (0,100,255),thickness=2)
     cv2.imshow("Game_Window",camframe)
-    cv2.waitKey(5)
+    cv2.waitKey(1)
+    if user_wants_to_stop():
+       webcam_video.stop_video_capture()
+       sys.exit(1)
 
 def blendGrid(camframe,grid,grid_position):
     if camframe==None or grid==None:
@@ -44,18 +69,24 @@ def drawPointer(camframe,pointer_location):
     return camframe
 
 def convert_pointer_location(pointer_location,grid_position):
-    pointer_location_inside_grid=(pointer_location[0]-grid_position[0],pointer_location[1]-grid_position[1])
+    pointer_location_inside_grid=(pointer_location[0]-grid_position[1],pointer_location[1]-grid_position[0])
+    print "pointer_location_in_grid: ",
+    print pointer_location_inside_grid
     return pointer_location_inside_grid
 
 def get_system_time():
     return time.time()
 
 def line_already_selected(line):
-    if (line in game_object.list_of_lines_drawn):
+    print "lines : "
+    print game_object.list_of_lines_drawn
+    if (line_to_dot_list(line) in game_object.list_of_lines_drawn):
         return True
+    else:
+        return False
 
 def create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250)):
-    new_grid=grid.Grid(row,col,dotRadius,dotsGap,dottype,color)
+    new_grid=Grid.Grid(row,col,dotRadius,dotsGap,dottype,color)
     return new_grid
 
 def initiate_game_states(row,col,number_of_players):
@@ -80,30 +111,49 @@ def initial_set_up(webcam_video,pointer):
     except cv2.error as cv2_error:
         webcam_video.catch_error("initial_set_up","mainloop","cv2_error")
 
-def game_logic(selected_line,player_number):
-    game_object.update_list_of_drawn_lines_with(selected_line)
-    winning_status=0
-    if game_object.boxFormed(selected_line,player_number):
-       left_top_dot_of_box=game_object.get_last_box_formed()
-       grid.drawBox(left_top_dot_of_box,player_number)
-       if game_object.game_ended():
-          return game_object.get_winning_status()
-          #it returns winning_status,winning_player,winning_number,total_number
-       else:
-          next_player=(player_number+1)%number_of_players
-          return winning_status, next_player, None, None
-    return winning_status, player_number, None , None
+def convert_dot_to_tuple(dot):
+    return (dot.get_x(),dot.get_y())
 
-grid=create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250))
+def drawBoxes(boxes,player_number):
+    box_formed_0=boxes[0]
+    if box_formed_0!=None:
+       left_top_dot_of_box_0=convert_dot_to_tuple(box_formed_0[0][0])
+       grid.drawBox(left_top_dot_of_box_0,player_number)
+    box_formed_1=boxes[1]
+    if box_formed_1!=None:
+       left_top_dot_of_box_1=convert_dot_to_tuple(box_formed_1[0][0])
+       grid.drawBox(left_top_dot_of_box_1,player_number)
+
+def line_to_dot_list(line):
+    return [Dot(line[0]),Dot(line[1])]
+
+def game_logic(selected_line):
+    game_in_progress=True
+    line_in_form_of_dots=[Dot(selected_line[0]),Dot(selected_line[1])]
+    game_object.update_list_of_drawn_lines_with(line_in_form_of_dots)
+    
+    box_formed,boxes=game_object.box_formed_by(line_in_form_of_dots)
+    game_object.set_owner_of_next_line(box_formed)
+    if box_formed:
+       owner_of_the_box=game_object.get_owner_of_last_line()
+       drawBoxes(boxes,owner_of_the_box)   
+       game_object.update_no_of_boxes_of_players(owner_of_the_box,boxes)
+       if(game_object.game_ended()):
+             game_in_progress =False            
+    return game_in_progress
+    
+    
+grid=create_grid(row,col,dotRadius,dotsGap,dottype,color)
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
 pointer=initiate_pointer()
 webcam_video,pointer=initial_set_up(webcam_video,pointer)
+cv2.namedWindow("Game_Window",cv2.WINDOW_NORMAL)
 
-winning_status=0
+game_in_progress=True
 player=0
-while winning_status==0:
-      total_waiting_time=20.0
+while True:
+      total_waiting_time=1.0
       frame=webcam_video.get_next_frame()
       _,pointer_location=pointer.detect_pointer(frame)
       if pointer_location==None:
@@ -111,10 +161,15 @@ while winning_status==0:
          continue
       pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
       selected_line=grid.findSelectedLine(pointer_location_inside_grid)
-      if selected_line==None or line_already_selected(selected_line):
+      
+      if selected_line==None:
          updateGUI(frame,grid,grid_position,pointer_location)
          continue
-
+      k=line_already_selected(selected_line)
+      print k
+      if k==True: 
+         updateGUI(frame,grid,grid_position,pointer_location)
+         continue
       start_time=get_system_time()
       current_time=get_system_time()
       delay=current_time-start_time
@@ -138,14 +193,18 @@ while winning_status==0:
                delay=get_system_time()-start_time
                updateGUI(frame,grid,grid_position,pointer_location)
                continue
-            delay=get_system_time()-start_time
-            updateGUI(frame,grid,grid_position,pointer_location) 
+            else:
+               updateGUI(frame,grid,grid_position,pointer_location) 
+               break
       if delay>total_waiting_time:
          grid.drawLastSelectedLine()
          progress_bar_drawn=False
-         winning_status,player,winning_number,total_number=game_logic(selected_line,player)
+         game_in_progress=game_logic(selected_line)
          updateGUI(frame,grid,grid_position,pointer_location)
       if progress_bar_drawn==True:
          grid.removeProgressBar()
+      if game_in_progress==False and user_wants_to_stop():
+         webcam_video.stop_video_capture()
+         break
 
-print game_object.declare_winner()
+

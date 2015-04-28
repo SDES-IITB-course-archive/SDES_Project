@@ -41,13 +41,13 @@ class Game(object):
 
     def declare_winner(self):
         if(self.no_of_boxes_of_players[0]>self.no_of_boxes_of_players[1]):
-            print "Player 1 is the winner"
+            winner="1"
         elif(self.no_of_boxes_of_players[0]<self.no_of_boxes_of_players[1]):
-            print "Player 2 is the winner"
+            winner="2"
         else:
-            print "This is a tie"
-        pass
-
+            winner=None
+        return winner
+             
     def update_no_of_boxes_of_players(self,owner_of_the_box,boxes):
         no_of_boxes=0
         if(boxes[0]!=None):
