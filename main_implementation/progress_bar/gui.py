@@ -7,10 +7,13 @@ import sys
 from dot import *
 
 class Pointer(object):
-    def __init__(self,colors):
+    def __init__(self,color,pointer_window=None):
         self.calibrated=0
-        self.pointer_window=[92,128,96,236,0,288]
-        self.colors=colors
+        if pointer_window==None:
+           self.pointer_window=[0,179,0,255,0,255]
+        else:
+           self.pointer_window=pointer_window
+        self.color=color
 
     def received_input(self,webcam_video,new_grid):
         if self.calibrated:
@@ -55,13 +58,13 @@ class Pointer(object):
             print "please, calibrate the pointer first."
             sys.exit()
 
-    def detect_pointer(self,frame,owner_of_next_line):
+    def detect_pointer(self,frame):
         if self.calibrated:
             [lower_hue,upper_hue,lower_sat,upper_sat,lower_value,upper_value]=self.pointer_window
         else:
             print "please, calibrate the pointer first."
             sys.exit()
-        stamp=self.detect_and_stamp_the_pointer_in(frame,owner_of_next_line)
+        stamp=self.detect_and_stamp_the_pointer_in(frame)
         if stamp[2]==None:
             return frame,None
         thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
@@ -87,8 +90,7 @@ class Pointer(object):
 
         return thresholded
 
-    def detect_and_stamp_the_pointer_in(self,frame,owner_of_next_line):
-        color=self.colors[owner_of_next_line]
+    def detect_and_stamp_the_pointer_in(self,frame):
         hsv=cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
         thresholded=self._mask(hsv)
 
@@ -96,8 +98,8 @@ class Pointer(object):
         try:
             centroid_x=int(mom['m10']/mom['m00'])
             centroid_y=int(mom['m01']/mom['m00'])
-            cv2.circle(frame,(centroid_x,centroid_y),5,color,-1)
-            cv2.circle(thresholded,(centroid_x,centroid_y),3,(0,0,0),-1)
+            cv2.circle(frame,(centroid_x,centroid_y),5,self.color,-1)
+            cv2.circle(thresholded,(centroid_x,centroid_y),3,self.color,-1)
             return thresholded,frame,[centroid_x,centroid_y]
         except ZeroDivisionError as z:
             return thresholded,frame,None
@@ -136,7 +138,7 @@ class Pointer(object):
 
                 self.pointer_window=[lower_hue,upper_hue,lower_sat,upper_sat,lower_value,upper_value]
 
-                stamp=self.detect_and_stamp_the_pointer_in(frame,0)
+                stamp=self.detect_and_stamp_the_pointer_in(frame)
                 
                 if(stamp[2]==None):
                     cv2.imshow("Detected_pointer",stamp[1])

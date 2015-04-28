@@ -7,13 +7,6 @@ from game import *
 from video import *
 from gui import *
 
-row,col=3,3
-dotRadius,dotsGap,dottype,color=6,60,1,(46,266,250)
-max_allowed_pointer_miss=3
-number_of_players=2
-grid_position=(100,100)
-colors=[(0,0,255),(110,210,10)]
-
 
 def get_text(player=None):
     text=""
@@ -127,17 +120,19 @@ def initiate_webcam():
     webcam_video=Video()
     return webcam_video
 
-def initiate_pointer():
-    mypointer=Pointer(colors)
+def initiate_pointer(color,pointer_window=None):
+    mypointer=Pointer(color,pointer_window)
     return mypointer
 
-def initial_set_up(webcam_video,pointer):
+def initial_set_up(webcam_video,pointers):
     try:
         webcam_video.start_video_capture()
-        print "First calibrate the pointer"
-        pointer.calibrate_pointer(webcam_video)
+        print "First calibrate the pointer for player 1"
+        pointers[0].calibrate_pointer(webcam_video)
+        print "First calibrate the pointer for player 2"
+        pointers[1].calibrate_pointer(webcam_video)
         print "Thanks, you can now start playing"
-        return webcam_video,pointer
+        return webcam_video,pointers
     except cv2.error as cv2_error:
         webcam_video.catch_error("initial_set_up","mainloop","cv2_error")
 
@@ -172,12 +167,22 @@ def game_logic(selected_line):
              game_in_progress =False            
     return game_in_progress
     
+
+row,col=3,3
+dotRadius,dotsGap,dottype,color=6,60,1,(46,266,250)
+max_allowed_pointer_miss=3
+number_of_players=2
+grid_position=(100,100)
+colors=[(0,0,255),(110,210,10)]
     
 grid=create_grid(row,col,dotRadius,dotsGap,dottype,color)
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
-pointer=initiate_pointer()
-webcam_video,pointer=initial_set_up(webcam_video,pointer)
+pointers=[initiate_pointer(colors[0]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
+webcam_video,pointers=initial_set_up(webcam_video,pointers)
+
+
+
 cv2.namedWindow("Game_Window",cv2.WINDOW_NORMAL)
 
 def main():
@@ -186,7 +191,8 @@ def main():
 	while True:
 	      total_waiting_time=1.0
 	      frame=webcam_video.get_next_frame()
-	      _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
+	      player=game_object.get_owner_of_next_line()
+	      _,pointer_location=pointers[player].detect_pointer(frame)
 	      if pointer_location==None:
 		 updateGUI(frame,grid,grid_position,pointer_location=None)
 		 continue
@@ -208,7 +214,8 @@ def main():
 	      progress_bar_drawn=False
 	      while delay<=total_waiting_time:
 		    frame=webcam_video.get_next_frame()
-		    _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
+		    player=game_object.get_owner_of_next_line()
+		    _,pointer_location=pointers[player].detect_pointer(frame)
 		    if pointer_location==None:
 		       total_waiting_time=total_waiting_time*1.1
 		       pointer_miss+=1
