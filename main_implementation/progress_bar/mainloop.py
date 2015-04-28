@@ -7,28 +7,33 @@ from game import *
 from video import *
 from gui import *
 
-row,col=6,6
-dotRadius,dotsGap,dottype,color=8,40,1,(46,266,250)
+row,col=3,3
+dotRadius,dotsGap,dottype,color=6,60,1,(46,266,250)
 max_allowed_pointer_miss=3
 number_of_players=2
 grid_position=(100,100)
+colors=[(0,0,255),(110,210,10)]
 
 
-
-def get_text():
-    player1boxes=str(game_object.no_of_boxes_of_players[0])
-    player2boxes=str(game_object.no_of_boxes_of_players[1])
-    
-    text= "Player 1: "+player1boxes+"      Player 2: "+ player2boxes
-    if game_object.game_ended():
-       winner=game_object.declare_winner()
-       if winner!=None:
-          text+="   Player "+winner+" won the game."
+def get_text(player=None):
+    text=""
+    if player==None:
+       if game_object.game_ended():
+          winner=game_object.declare_winner()
+          if winner!=None:
+             text+="   Player "+winner+" won the game."
+          else:
+             text+="   It's a tie."
        else:
-          text+="   It's a tie."
-    else:
-       owner_of_next_line=str(game_object.get_owner_of_next_line()+1)
-       text=text+"    Next Player: "+owner_of_next_line
+          owner_of_next_line=str(game_object.get_owner_of_next_line()+1)
+          text+="    Next Player: "+owner_of_next_line
+    
+    elif player==1:
+         player1boxes=str(game_object.no_of_boxes_of_players[0])
+         text+= "Player 1: "+player1boxes
+    elif player==2:
+         player2boxes=str(game_object.no_of_boxes_of_players[1])
+         text+= "Player 2: "+player2boxes
     return text 
 
 
@@ -38,7 +43,8 @@ def updateGUI(camframe,grid,grid_position,pointer_location):
     camframe=cv2.flip(camframe,flipCode=1)
     camframe=blendGrid(camframe,grid.grid,grid_position)
     width,height,_=camframe.shape
-    cv2.putText(camframe,get_text(), (10,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, (0,100,255),thickness=2)
+    camframe=draw_next_player_color(camframe,width,height)
+    camframe=writeText(camframe,width,height)
     cv2.imshow("Game_Window",camframe)
     cv2.waitKey(1)
     if user_wants_to_stop():
@@ -67,6 +73,30 @@ def drawPointer(camframe,pointer_location):
     color=(255,255,255)
     cv2.circle(camframe,(pointer_location[0],pointer_location[1]),radius,color,-1)
     return camframe
+
+
+def draw_next_player_color(camframe,width,height):
+    if game_object.get_owner_of_next_line()==0:
+       deeper_color=make_deeper_color(colors[0])
+    else:
+       deeper_color=make_deeper_color(colors[1])
+    
+    cv2.circle(camframe,(50,50),10,deeper_color,-1)
+    return camframe
+
+def writeText(camframe,width,height):
+   cv2.putText(camframe, get_text(1), (10,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, colors[0],thickness=2)
+   cv2.putText(camframe, get_text(2), (170,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, colors[1],thickness=2)
+   cv2.putText(camframe, get_text(), (310,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, (0,100,255),thickness=2)
+   return camframe
+   
+def make_deeper_color(color):
+    deeper_color=[0,0,0]
+    for i in [0,1,2]:
+        deeper_color[i]=int(color[i]*1.2)
+        if deeper_color[i]>255:
+           deeper_color[i]=255
+    return tuple(deeper_color)
 
 def convert_pointer_location(pointer_location,grid_position):
     pointer_location_inside_grid=(pointer_location[0]-grid_position[1],pointer_location[1]-grid_position[0])
@@ -98,7 +128,7 @@ def initiate_webcam():
     return webcam_video
 
 def initiate_pointer():
-    mypointer=Pointer()
+    mypointer=Pointer(colors)
     return mypointer
 
 def initial_set_up(webcam_video,pointer):
@@ -155,7 +185,7 @@ player=0
 while True:
       total_waiting_time=1.0
       frame=webcam_video.get_next_frame()
-      _,pointer_location=pointer.detect_pointer(frame)
+      _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
       if pointer_location==None:
          updateGUI(frame,grid,grid_position,pointer_location=None)
          continue
@@ -177,7 +207,7 @@ while True:
       progress_bar_drawn=False
       while delay<=total_waiting_time:
             frame=webcam_video.get_next_frame()
-            _,pointer_location=pointer.detect_pointer(frame)
+            _,pointer_location=pointer.detect_pointer(frame,game_object.get_owner_of_next_line())
             if pointer_location==None:
                total_waiting_time=total_waiting_time*1.1
                pointer_miss+=1

@@ -57,10 +57,11 @@ class Grid(object):
       
       
       
-      def assignFatigue(fatigue):
+      def assignFatigue(self,fatigue=None):
           if fatigue==None:
              gap_between_dots=self.dotsGap-2*self.dotRadius
-             if gap_between_dots
+             fatigue=int(gap_between_dots/20)
+          return fatigue
              
       #called internally   
       def detectHorizontalLine(self,x,y):
