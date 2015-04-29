@@ -57,13 +57,12 @@ class Game(object):
              
     def update_no_of_boxes_of_players(self,owner_of_the_box,boxes):
         no_of_boxes=0
-        if(boxes[0]!=None):
-            no_of_boxes+=1
-        if(boxes[1]!=None):
-            no_of_boxes+=1
+        for i in range(0,2):
+            if(boxes[i]!=None):
+                left_pillar,right_pillar=self.new_grid.pillar_lines(boxes[i][0],boxes[i][2])
+                if(([left_pillar,right_pillar])==[boxes[i][3],boxes[i][1]]):
+                    no_of_boxes+=1
         self.no_of_boxes_of_players[owner_of_the_box]+=no_of_boxes
-        print "Player 1 has ",self.no_of_boxes_of_players[0]," boxes"
-        print "Player 2 has ",self.no_of_boxes_of_players[1]," boxes"
 
     def get_owner_of_last_line(self):
         return self.owner_of_last_line
