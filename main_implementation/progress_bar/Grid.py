@@ -3,7 +3,8 @@ import cv2
 import sys
 
 class Grid(object):
-      def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0),fatigue=None):   #dotsGap includes dotRadius
+      def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0),\
+      fatigue=None,player1boxcolor=(255,128,12),player2boxcolor=(0,128,12)):   #dotsGap includes dotRadius
           self.row=row
           self.col=col
           self.dotRadius=dotRadius
@@ -16,8 +17,8 @@ class Grid(object):
           self.dotPosList=[]
           self.linecolor=(0,210,11)
           self.currenLineColor=(112,21,221)
-          self.player1boxcolor=(255,128,12)
-          self.player2boxcolor=(0,128,12)
+          self.player1boxcolor=player1boxcolor
+          self.player2boxcolor=player2boxcolor
           self.lastDrawnLinePos=None 
           self.lastSelectedLine=[(0,0),(0,1)] 
           self.progress_bar_drawn_over_line=None 

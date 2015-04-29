@@ -108,8 +108,8 @@ def line_already_selected(line):
     else:
         return False
 
-def create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250),fatigue=None):
-    new_grid=Grid.Grid(row,col,dotRadius,dotsGap,dottype,color,fatigue)
+def create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250),fatigue=None,player1boxcolor=None,player2boxcolor=None):
+    new_grid=Grid.Grid(row,col,dotRadius,dotsGap,dottype,color,fatigue,player1boxcolor,player2boxcolor)
     return new_grid
 
 def initiate_game_states(row,col,number_of_players):
@@ -176,7 +176,7 @@ grid_position=(100,100)
 colors=[(0,0,255),(110,210,10)]
 total_global_waiting_time=1.0
     
-grid=create_grid(row,col,dotRadius,dotsGap,dottype,color,fatigue=4)
+grid=create_grid(row,col,dotRadius,dotsGap,dottype,color,fatigue=4,player1boxcolor=colors[0],player2boxcolor=colors[1])
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
 pointers=[initiate_pointer(colors[0],[37,71,118,216,49,188]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
