@@ -31,6 +31,9 @@ class GuiGrid(object):
           if self.dots_gap<2*self.dot_radius:
              raise SizeError("Gap between dots should be greater than 2 dot radius ")
              sys.exit(1)
+          if self.row!=self.col:
+             raise SizeError("This game is played for square grid size. Keep same number of rows and columns")
+             sys.exit(1)
           y=self.dot_radius
           i=0
           while y<self.width:
