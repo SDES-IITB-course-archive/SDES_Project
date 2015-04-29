@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import sys
 
-class Grid(object):
+class GridGui(object):
       def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0),\
       fatigue=None,player1boxcolor=(255,128,12),player2boxcolor=(0,128,12)):   #dotsGap includes dotRadius
           self.row=row

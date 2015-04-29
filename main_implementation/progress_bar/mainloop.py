@@ -2,7 +2,7 @@ import time
 import sys
 import numpy as np
 
-import Grid
+import guigrid
 from game import *
 from video import *
 from gui import *
@@ -30,21 +30,19 @@ def get_text(player=None):
     return text 
 
 
-def updateGUI(camframe,grid,grid_position,pointer_location):
-    print "pointer_location: ",
-    print pointer_location
+def update_gui(camframe,grid,grid_position,pointer_location):
     camframe=cv2.flip(camframe,flipCode=1)
-    camframe=blendGrid(camframe,grid.grid,grid_position)
+    camframe=blend_grid(camframe,grid.grid,grid_position)
     width,height,_=camframe.shape
     camframe=draw_next_player_color(camframe,width,height)
-    camframe=writeText(camframe,width,height)
+    camframe=write_text(camframe,width,height)
     cv2.imshow("Game_Window",camframe)
     cv2.waitKey(1)
     if user_wants_to_stop():
        webcam_video.stop_video_capture()
        sys.exit(1)
 
-def blendGrid(camframe,grid,grid_position):
+def blend_grid(camframe,grid,grid_position):
     if camframe==None or grid==None:
        return
     x,y=grid_position[0],grid_position[1]
@@ -61,7 +59,7 @@ def blendGrid(camframe,grid,grid_position):
     camframe[x:x+rows, y:y+cols ] = dst
     return camframe
 
-def drawPointer(camframe,pointer_location):
+def draw_pointer(camframe,pointer_location):
     radius=2
     color=(255,255,255)
     cv2.circle(camframe,(pointer_location[0],pointer_location[1]),radius,color,-1)
@@ -77,7 +75,7 @@ def draw_next_player_color(camframe,width,height):
     cv2.circle(camframe,(50,50),10,deeper_color,-1)
     return camframe
 
-def writeText(camframe,width,height):
+def write_text(camframe,width,height):
    cv2.putText(camframe, get_text(1), (10,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, colors[0],thickness=2)
    cv2.putText(camframe, get_text(2), (170,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, colors[1],thickness=2)
    cv2.putText(camframe, get_text(), (310,height-200), cv2.FONT_HERSHEY_PLAIN, 1.4, (0,100,255),thickness=2)
@@ -93,23 +91,19 @@ def make_deeper_color(color):
 
 def convert_pointer_location(pointer_location,grid_position):
     pointer_location_inside_grid=(pointer_location[0]-grid_position[1],pointer_location[1]-grid_position[0])
-    print "pointer_location_in_grid: ",
-    print pointer_location_inside_grid
     return pointer_location_inside_grid
 
 def get_system_time():
     return time.time()
 
 def line_already_selected(line):
-    print "lines : "
-    print game_object.list_of_lines_drawn
     if (line_to_dot_list(line) in game_object.list_of_lines_drawn):
         return True
     else:
         return False
 
-def create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250),fatigue=None,player1boxcolor=None,player2boxcolor=None):
-    new_grid=Grid.Grid(row,col,dotRadius,dotsGap,dottype,color,fatigue,player1boxcolor,player2boxcolor)
+def create_grid(row,col,dot_radius=8,dots_gap=60,dottype=1,color=(46,266,250),fatigue=None,player1_boxcolor=None,player2_boxcolor=None):
+    new_grid=guigrid.GuiGrid(row,col,dot_radius,dots_gap,dottype,color,fatigue,player1_boxcolor,player2_boxcolor)
     return new_grid
 
 def initiate_game_states(row,col,number_of_players):
@@ -139,15 +133,15 @@ def initial_set_up(webcam_video,pointers):
 def convert_dot_to_tuple(dot):
     return (dot.get_x(),dot.get_y())
 
-def drawBoxes(boxes,player_number):
+def draw_boxes(boxes,player_number):
     box_formed_0=boxes[0]
     if box_formed_0!=None:
        left_top_dot_of_box_0=convert_dot_to_tuple(box_formed_0[0][0])
-       grid.drawBox(left_top_dot_of_box_0,player_number)
+       grid.draw_box(left_top_dot_of_box_0,player_number)
     box_formed_1=boxes[1]
     if box_formed_1!=None:
        left_top_dot_of_box_1=convert_dot_to_tuple(box_formed_1[0][0])
-       grid.drawBox(left_top_dot_of_box_1,player_number)
+       grid.draw_box(left_top_dot_of_box_1,player_number)
 
 def line_to_dot_list(line):
     return [Dot(line[0]),Dot(line[1])]
@@ -161,7 +155,7 @@ def game_logic(selected_line):
     game_object.set_owner_of_next_line(box_formed)
     if box_formed:
        owner_of_the_box=game_object.get_owner_of_last_line()
-       drawBoxes(boxes,owner_of_the_box)   
+       draw_boxes(boxes,owner_of_the_box)   
        game_object.update_no_of_boxes_of_players(owner_of_the_box,boxes)
        if(game_object.game_ended()):
              game_in_progress =False            
@@ -169,14 +163,14 @@ def game_logic(selected_line):
     
 
 row,col=6,6
-dotRadius,dotsGap,dottype,color=6,60,1,(46,266,250)
+dot_radius,dots_gap,dottype,color=6,60,1,(46,266,250)
 max_allowed_pointer_miss=3
 number_of_players=2
 grid_position=(100,100)
 colors=[(0,0,255),(110,210,10)]
 total_global_waiting_time=1.0
     
-grid=create_grid(row,col,dotRadius,dotsGap,dottype,color,fatigue=4,player1boxcolor=colors[0],player2boxcolor=colors[1])
+grid=create_grid(row,col,dot_radius,dots_gap,dottype,color,fatigue=4,player1_boxcolor=colors[0],player2_boxcolor=colors[1])
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
 pointers=[initiate_pointer(colors[0],[37,71,118,216,49,188]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
@@ -194,13 +188,13 @@ def main():
 	      player=game_object.get_owner_of_next_line()
 	      _,pointer_location=pointers[player].detect_pointer(frame)
 	      if pointer_location==None:
-		 updateGUI(frame,grid,grid_position,pointer_location=None)
+		 update_gui(frame,grid,grid_position,pointer_location=None)
 		 continue
 	      pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
-	      selected_line=grid.findSelectedLine(pointer_location_inside_grid)
+	      selected_line=grid.find_selected_line(pointer_location_inside_grid)
 	      
 	      if selected_line==None or line_already_selected(selected_line):
-		 updateGUI(frame,grid,grid_position,pointer_location)
+		 update_gui(frame,grid,grid_position,pointer_location)
 		 continue
 		 
 	      start_time=get_system_time()
@@ -216,26 +210,26 @@ def main():
 		       pointer_miss+=1
 		       if pointer_miss>max_allowed_pointer_miss:
 		          break;
-		       updateGUI(frame,grid,grid_position,pointer_location=None)
+		       update_gui(frame,grid,grid_position,pointer_location=None)
 		       continue
 		    pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
-		    new_selected_line=grid.findSelectedLine(pointer_location_inside_grid)
+		    new_selected_line=grid.find_selected_line(pointer_location_inside_grid)
 		    if new_selected_line==selected_line:
-		       grid.drawProgressBarOverLastSelectedLine(delay/total_waiting_time)
+		       grid.draw_progressbar_over_last_selected_line(delay/total_waiting_time)
 		       progress_bar_drawn=True
 		       delay=get_system_time()-start_time
-		       updateGUI(frame,grid,grid_position,pointer_location)
+		       update_gui(frame,grid,grid_position,pointer_location)
 		       continue
 		    else:
-		       updateGUI(frame,grid,grid_position,pointer_location) 
+		       update_gui(frame,grid,grid_position,pointer_location) 
 		       break
 	      if delay>total_waiting_time:
-		 grid.drawLastSelectedLine()
+		 grid.draw_last_selected_line()
 		 progress_bar_drawn=False
 		 game_in_progress=game_logic(selected_line)
-		 updateGUI(frame,grid,grid_position,pointer_location)
+		 update_gui(frame,grid,grid_position,pointer_location)
 	      if progress_bar_drawn==True:
-		 grid.removeProgressBar()
+		 grid.remove_progress_bar()
 	      if game_in_progress==False and user_wants_to_stop():
 		 webcam_video.stop_video_capture()
 		 break
