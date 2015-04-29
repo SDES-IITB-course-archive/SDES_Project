@@ -3,7 +3,7 @@ import cv2
 import sys
 
 class Grid(object):
-      def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0)):   #dotsGap includes dotRadius
+      def __init__(self,row=4,col=4,dotRadius=4,dotsGap=20,dottype=0,color=(255,0,0),fatigue=None):   #dotsGap includes dotRadius
           self.row=row
           self.col=col
           self.dotRadius=dotRadius
@@ -21,7 +21,7 @@ class Grid(object):
           self.lastDrawnLinePos=None 
           self.lastSelectedLine=[(0,0),(0,1)] 
           self.progress_bar_drawn_over_line=None 
-          self.fatigue=self.assignFatigue()                 
+          self.fatigue=self.assignFatigue(fatigue)                 
           self.filldots()
           
        

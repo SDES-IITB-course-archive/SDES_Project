@@ -108,8 +108,8 @@ def line_already_selected(line):
     else:
         return False
 
-def create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250)):
-    new_grid=Grid.Grid(row,col,dotRadius,dotsGap,dottype,color)
+def create_grid(row,col,dotRadius=8,dotsGap=60,dottype=1,color=(46,266,250),fatigue=None):
+    new_grid=Grid.Grid(row,col,dotRadius,dotsGap,dottype,color,fatigue)
     return new_grid
 
 def initiate_game_states(row,col,number_of_players):
@@ -168,19 +168,19 @@ def game_logic(selected_line):
     return game_in_progress
     
 
-row,col=3,3
+row,col=6,6
 dotRadius,dotsGap,dottype,color=6,60,1,(46,266,250)
 max_allowed_pointer_miss=3
 number_of_players=2
 grid_position=(100,100)
 colors=[(0,0,255),(110,210,10)]
+total_global_waiting_time=1.0
     
-grid=create_grid(row,col,dotRadius,dotsGap,dottype,color)
+grid=create_grid(row,col,dotRadius,dotsGap,dottype,color,fatigue=4)
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
-pointers=[initiate_pointer(colors[0]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
+pointers=[initiate_pointer(colors[0],[37,71,118,216,49,188]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
 webcam_video,pointers=initial_set_up(webcam_video,pointers)
-
 
 
 cv2.namedWindow("Game_Window",cv2.WINDOW_NORMAL)
@@ -189,7 +189,7 @@ def main():
 	game_in_progress=True
 	player=0
 	while True:
-	      total_waiting_time=1.0
+	      total_waiting_time=total_global_waiting_time
 	      frame=webcam_video.get_next_frame()
 	      player=game_object.get_owner_of_next_line()
 	      _,pointer_location=pointers[player].detect_pointer(frame)
@@ -199,17 +199,12 @@ def main():
 	      pointer_location_inside_grid=convert_pointer_location(pointer_location,grid_position)
 	      selected_line=grid.findSelectedLine(pointer_location_inside_grid)
 	      
-	      if selected_line==None:
+	      if selected_line==None or line_already_selected(selected_line):
 		 updateGUI(frame,grid,grid_position,pointer_location)
 		 continue
-	      k=line_already_selected(selected_line)
-	      print k
-	      if k==True: 
-		 updateGUI(frame,grid,grid_position,pointer_location)
-		 continue
+		 
 	      start_time=get_system_time()
-	      current_time=get_system_time()
-	      delay=current_time-start_time
+	      delay=0
 	      pointer_miss=0
 	      progress_bar_drawn=False
 	      while delay<=total_waiting_time:
