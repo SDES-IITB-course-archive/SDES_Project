@@ -1,12 +1,5 @@
 #!/usr/bin/env python
 
-# Lines should be lists of dots strictly of size 2
-# Boxes should be quadruples of lines starting from roof and continuing clock-wise.
-# Have to take care of the fact that the line finalized is not already drawn. Done now.
-# Have to incorporate the handling of successive frames. Done now.
-# Player to draw the next line should be kept track of. Very IMP. Done now.
-# What about the co-ordinates of the dots? Convert to standard unitless Cartesian co-ordinates.
-
 from normgrid import *
 
 class LogicError(Exception):
@@ -30,9 +23,15 @@ class Game(object):
         return total_no_of_boxes==maximum_no_of_boxes
 
     def game_ended(self):
+        """
+            Returns if the game ended
+        """
         return self._grid_filled()
 
     def set_owner_of_next_line(self,box_formed):
+        """
+            Update the previous and the next player.
+        """
         if not box_formed:
             self.owner_of_next_line=self.player_next_to(self.owner_of_next_line)
             self.owner_of_last_line=self.player_next_to(self.owner_of_last_line)
@@ -41,12 +40,21 @@ class Game(object):
             self.owner_of_last_line=self.owner_of_next_line
 
     def player_next_to(self,player):
+        """
+            Returns the other player.
+        """
         return (player+1)%self.no_of_players
 
     def get_owner_of_next_line(self):
+        """
+            Returns the player who has the turn.
+        """
         return self.owner_of_next_line
 
     def declare_winner(self):
+        """
+            Decide and return the winner.
+        """
         if(self.no_of_boxes_of_players[0]>self.no_of_boxes_of_players[1]):
             winner="1"
         elif(self.no_of_boxes_of_players[0]<self.no_of_boxes_of_players[1]):
@@ -56,6 +64,9 @@ class Game(object):
         return winner
              
     def update_no_of_boxes_of_players(self,owner_of_the_box,boxes):
+        """
+            Update the score.
+        """
         no_of_boxes=0
         for i in range(0,2):
             if(boxes[i]!=None):
@@ -67,7 +78,10 @@ class Game(object):
     def get_owner_of_last_line(self):
         return self.owner_of_last_line
 
-    def update_list_of_drawn_lines_with(self,latest_line): # Update the list with the lines expressed in the correct format,i.e.,top-to-bottom or left-to-right
+    def update_list_of_drawn_lines_with(self,latest_line):
+        """
+            Note: Update the list with the lines expressed in the correct format,i.e.,top-to-bottom or left-to-right
+        """
         if(self.new_grid.is_horizontal(latest_line)):
             if(latest_line[0]!=self.new_grid.dot_to_left_of(latest_line[1])):
                 latest_line=latest_line[::-1]
@@ -80,6 +94,10 @@ class Game(object):
             return
 
     def box_formed_by(self,latest_line):
+        """
+            Returns if a box formed and the formed boxes.
+            A box is a list of 4 lines in the clockwise order starting from the roof.
+        """
         box_formed=False
         box1=None
         box2=None

@@ -8,11 +8,17 @@ class Video(object):
         self.init=0
 
     def normal_exit(self):
+        """
+            Exit without any error.
+        """
         if(self.init==1):
             self.stop_video_capture()
         sys.exit()
 
     def catch_error(self,function,module,error):
+        """
+            Central mechanism to catch the cv2 module errors.
+        """
         if(self.init==1):
             self.stop_video_capture()
         self.error_occurred_in(function,module)
@@ -20,6 +26,9 @@ class Video(object):
         sys.exit()
 
     def error_occurred_in(self,function,module):
+        """
+            Printing the source of the error.
+        """
         print "The following error occurred in function",function,"from module",module
 
     def start_video_capture(self):

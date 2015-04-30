@@ -31,8 +31,6 @@ def get_text(player=None):
 
 
 def updateGUI(camframe,grid,grid_position,pointer_location):
-    print "pointer_location: ",
-    print pointer_location
     camframe=cv2.flip(camframe,flipCode=1)
     camframe=blendGrid(camframe,grid.grid,grid_position)
     width,height,_=camframe.shape
@@ -93,16 +91,12 @@ def make_deeper_color(color):
 
 def convert_pointer_location(pointer_location,grid_position):
     pointer_location_inside_grid=(pointer_location[0]-grid_position[1],pointer_location[1]-grid_position[0])
-    print "pointer_location_in_grid: ",
-    print pointer_location_inside_grid
     return pointer_location_inside_grid
 
 def get_system_time():
     return time.time()
 
 def line_already_selected(line):
-    print "lines : "
-    print game_object.list_of_lines_drawn
     if (line_to_dot_list(line) in game_object.list_of_lines_drawn):
         return True
     else:
@@ -178,7 +172,7 @@ colors=[(0,0,255),(110,210,10)]
 grid=create_grid(row,col,dotRadius,dotsGap,dottype,color)
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
-pointers=[initiate_pointer(colors[0]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
+pointers=[initiate_pointer(colors[0],[161,179,210,255,38,63]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
 webcam_video,pointers=initial_set_up(webcam_video,pointers)
 
 

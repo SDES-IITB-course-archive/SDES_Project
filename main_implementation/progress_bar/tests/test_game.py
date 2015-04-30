@@ -16,7 +16,8 @@ import dot
 #        |     |     |     |
 #   (3,0)-------------------
 
-# 1)
+# 1) The grid status used in the setUp through the "list_of_lines_drawn" parameter. 
+# This is used in the function to test if 2 boxes formed by a single line.
 
 #            (0,1) (0,2) (0,3)
 #   (0,0)-------

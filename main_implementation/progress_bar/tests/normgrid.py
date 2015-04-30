@@ -9,8 +9,16 @@ class NormGrid(object):
         self.width=grid_size[1]
 
     def not_adjacent(self,dot1,dot2):
-        if(self.dot_above(dot1) != dot2 and self.dot_below(dot1) != dot2 and self.dot_to_left_of(dot1) != dot2 and
-                self.dot_to_right_of(dot1) != dot2):
+        """
+            Returns if two dots are adjacent
+        """
+        if(
+               self.dot_above(dot1) != dot2 and 
+               self.dot_below(dot1) != dot2 and 
+               self.dot_to_left_of(dot1) != dot2 
+               and self.dot_to_right_of(dot1) != dot2
+          ):
+          # Check if the dot is adjacent to the specified one.
             return True
         else:
             return False
@@ -74,11 +82,17 @@ class NormGrid(object):
             return [self.dot_to_left_of(line[0]),self.dot_to_left_of(line[1])]
 
     def pillar_lines(self,roof_line,floor_line):
+        """
+            Returns the vertical line components of a box given the horizontal ones.
+        """
         left_pillar=[roof_line[0],floor_line[0]]
         right_pillar=[roof_line[1],floor_line[1]]
         return left_pillar,right_pillar
 
     def roof_and_floor(self,left_pillar,right_pillar):
+        """
+            Returns the horizontal line components of a box given the vertical ones.
+        """
         roof_line=[left_pillar[0],right_pillar[0]]
         floor_line=[left_pillar[1],right_pillar[1]]
         return roof_line,floor_line
