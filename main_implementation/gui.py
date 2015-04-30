@@ -7,9 +7,13 @@ import sys
 from dot import *
 
 class Pointer(object):
-    def __init__(self):
+    def __init__(self,color,pointer_window=None):
         self.calibrated=0
-        self.pointer_window=[106,122,165,248,55,105]
+        if pointer_window==None:
+           self.pointer_window=[0,179,0,255,0,255]
+        else:
+           self.pointer_window=pointer_window
+        self.color=color
 
     def received_input(self,webcam_video,new_grid):
         if self.calibrated:
@@ -94,8 +98,8 @@ class Pointer(object):
         try:
             centroid_x=int(mom['m10']/mom['m00'])
             centroid_y=int(mom['m01']/mom['m00'])
-            cv2.circle(frame,(centroid_x,centroid_y),5,(255,255,255),-1)
-            cv2.circle(thresholded,(centroid_x,centroid_y),3,(0,0,0),-1)
+            cv2.circle(frame,(centroid_x,centroid_y),5,self.color,-1)
+            cv2.circle(thresholded,(centroid_x,centroid_y),3,self.color,-1)
             return thresholded,frame,[centroid_x,centroid_y]
         except ZeroDivisionError as z:
             return thresholded,frame,None
@@ -138,13 +142,23 @@ class Pointer(object):
                 
                 if(stamp[2]==None):
                     cv2.imshow("Detected_pointer",stamp[1])
-                    cv2.waitKey(1)
+                    cv2.waitKey(5)
                     cv2.imshow("Calibration",stamp[0])
-                    cv2.waitKey(1)
+                    cv2.waitKey(5)
+                    if user_wants_to_stop():
+                        cv2.destroyWindow("Detected_pointer")
+                        cv2.waitKey(4)
+                        cv2.destroyWindow("Control")
+                        cv2.waitKey(4)
+                        cv2.destroyWindow("Calibration")
+                        cv2.waitKey(4)
+                        if __name__=="__main__":
+                            webcam_video.normal_exit()
+                        self.calibrated=1
+                        return
                     continue
 
                 thresholded,frame_with_pointer_detected,[centroid_x,centroid_y]=stamp
-
                 cv2.imshow("Calibration",thresholded)
                 cv2.waitKey(1)
                 cv2.imshow("Detected_pointer",frame_with_pointer_detected)
@@ -165,7 +179,7 @@ class Pointer(object):
             webcam_video.catch_error("calibrate_pointer","gui",cv2_error)
 
 def user_wants_to_stop():
-    k=cv2.waitKey(5) & 0xFF
+    k=cv2.waitKey(10) & 0xFF
     return k==27
 
 if __name__=="__main__":
