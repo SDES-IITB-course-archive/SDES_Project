@@ -7,7 +7,13 @@ from game import *
 from video import *
 from gui import *
 
-
+def check_if_grid_size_fits_in_frame(grid,camframe,grid_position):
+    camframe_width,camframe_height,_=camframe.shape
+    if grid.width+grid_position[0]>camframe_width or grid.width+grid_position[1]>camframe_height:
+       raise guigrid.SizeError("grid does not fit into webcam frame. Please \
+       reduce grid size or gaps between dots.")
+       sys.exit(1)
+       
 def get_text(player=None):
     text=""
     if player==None:
@@ -112,6 +118,10 @@ def initiate_game_states(row,col,number_of_players):
 
 def initiate_webcam():
     webcam_video=Video()
+    try:
+        webcam_video.start_video_capture()
+    except cv2.error as cv2_error:
+        webcam_video.catch_error("initiate_webcam","mainloop","cv2_error")
     return webcam_video
 
 def initiate_pointer(color,pointer_window=None):
@@ -120,7 +130,6 @@ def initiate_pointer(color,pointer_window=None):
 
 def initial_set_up(webcam_video,pointers):
     try:
-        webcam_video.start_video_capture()
         print "First calibrate the pointer for player 1"
         pointers[0].calibrate_pointer(webcam_video)
         print "First calibrate the pointer for player 2"
@@ -162,7 +171,7 @@ def game_logic(selected_line):
     return game_in_progress
     
 
-row,col=6,6
+row,col=3,2
 dot_radius,dots_gap,dottype,color=6,60,1,(46,266,250)
 max_allowed_pointer_miss=3
 number_of_players=2
@@ -170,13 +179,15 @@ grid_position=(100,100)
 colors=[(0,0,255),(110,210,10)]
 total_global_waiting_time=1.0
     
-grid=create_grid(row,col,dot_radius,dots_gap,dottype,color,fatigue=4,player1_boxcolor=colors[0],player2_boxcolor=colors[1])
+grid=create_grid(row,col,dot_radius,dots_gap,dottype,color,fatigue=4,
+                 player1_boxcolor=colors[0],player2_boxcolor=colors[1])
 game_object=initiate_game_states(row,col,number_of_players)
 webcam_video=initiate_webcam()
-pointers=[initiate_pointer(colors[0],[37,71,118,216,49,188]),initiate_pointer(colors[1],[92,128,96,236,0,288])]
+pointers=[initiate_pointer(colors[0],[92,128,96,236,0,288]),
+          initiate_pointer(colors[1],[37,71,118,216,49,188])
+         ]
+check_if_grid_size_fits_in_frame(grid,webcam_video.get_next_frame(),grid_position)
 webcam_video,pointers=initial_set_up(webcam_video,pointers)
-
-
 cv2.namedWindow("Game_Window",cv2.WINDOW_NORMAL)
 
 def main():

@@ -31,6 +31,9 @@ class GuiGrid(object):
           if self.dots_gap<2*self.dot_radius:
              raise SizeError("Gap between dots should be greater than 2 dot radius ")
              sys.exit(1)
+          if self.row!=self.col:
+             raise SizeError("This game is played for square grid size. Keep same number of rows and columns")
+             sys.exit(1)
           y=self.dot_radius
           i=0
           while y<self.width:
@@ -47,7 +50,7 @@ class GuiGrid(object):
       #called internally
       def create_dot_at(self,x,y):
           if self.dottype==0:
-             cv2.circle(self.grid,(x,y), self.dot_radius, self.color, -1)
+             cv2.circle(self.grid, (x,y), self.dot_radius, self.color, -1)
           else:
              cv2.rectangle(self.grid,(x-self.dot_radius,y-self.dot_radius),(x+self.dot_radius,y+self.dot_radius), self.color, -1) 
      
@@ -148,12 +151,15 @@ class GuiGrid(object):
              self.last_drawn_line_location=self.draw_vertical_line(line,self.current_linecolor)
           
           
-      #this will be called for drawing the last selected line         
+               
       def draw_last_selected_line(self):
-           self.draw_line(self.last_selected_line)
+          '''this will be called for drawing the last selected line'''
+          self.draw_line(self.last_selected_line)
            
-      #this is called to draw a box     
+           
       def draw_box(self,dot_coordinate,boxcolor=0):
+          '''this is called to draw a box. \n dot_coordinate is the left top dot position number.
+           boxcolor denotes player number.'''
           if boxcolor==0:
               boxcolor=self.player1_boxcolor
           else:
@@ -164,6 +170,7 @@ class GuiGrid(object):
           box_end_point=(ending_dot_pos[0]-self.dot_radius-1,ending_dot_pos[1]-self.dot_radius-1)
           cv2.rectangle(self.grid,box_start_point,box_end_point, boxcolor, -1)
           
+      #called internally    
       def calculate_bar_length(self,i):
           bar_length=int(round((self.dots_gap-2*self.dot_radius)*i))
           if bar_length<0:
@@ -171,6 +178,7 @@ class GuiGrid(object):
           elif bar_length>self.dots_gap-2*self.dot_radius-2:
             bar_length=self.dots_gap-2*self.dot_radius-2
           return bar_length
+          
           
       #called internally
       def draw_horizontal_progress_line(self,line,color,i):
@@ -199,7 +207,9 @@ class GuiGrid(object):
              self.draw_vertical_progress_line(line,self.current_linecolor,i)
          self.progress_bar_drawn_over_line=line
       
+      
       def remove_progress_bar(self):
+          '''removes any progressbar previously drawn'''
           line=self.progress_bar_drawn_over_line
           if line==None:
              return
